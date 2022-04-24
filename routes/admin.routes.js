@@ -14,6 +14,9 @@ const {
   getSellPayments,
   loginAdmin,
   logoutAdmin,
+  updateAdminDetails,
+  forgotPassword,
+  resetPassword,
 } = require('../controllers/Admin/adminController');
 const { checkAdmin } = require('../middlewares/adminAuth');
 const adminRouter = express.Router();
@@ -22,6 +25,9 @@ adminRouter.route('/registerAdmin').post(registerAdmin);
 adminRouter.route('/loginAdmin').post(loginAdmin);
 adminRouter.route('/logoutAdmin').delete(checkAdmin, logoutAdmin);
 adminRouter.route('/verify-email/:emailToken').get(checkAdmin, verifyAdmin);
+adminRouter.route('/forgotPassword').post(checkAdmin, forgotPassword);
+adminRouter.route('/passwordReset/:resetToken').put(checkAdmin, resetPassword);
+adminRouter.route('/updateAdminDetails').put(checkAdmin, updateAdminDetails);
 adminRouter.route('/getEmailVerification').get(checkAdmin, verifyEmail);
 adminRouter.route('/createNewStock').post(checkAdmin, addNewStock);
 adminRouter.route('/createCategory').post(checkAdmin, createNewCategory);

@@ -179,7 +179,8 @@ const verifyEmail = async (req, res) => {
     } catch (err) {
       createdAdmin.emailToken = null;
       createdAdmin.isVerified = false;
-      throw err;
+      await createdAdmin.save();
+      throw new Error("Couldn't send verification email!");
     }
 
     res.status(200).json({
@@ -228,6 +229,33 @@ const verifyAdmin = async (req, res) => {
       success: true,
       message: 'Admins email verified successfully!',
     });
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+const updateAdminDetails = async (req, res) => {
+  const { dataToUpdate, email } = req.body.data;
+
+  try {
+    const findAdmin = await Admin.findOne({ email });
+
+    if (!findAdmin) {
+      res.status(404).json({ success: false, error: 'No such admin exists!' });
+    } else {
+      const updatedAdmin = await Admin.findOneAndUpdate(
+        { email },
+        { $set: dataToUpdate },
+        { new: true }
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Admin details updated successfully!',
+        data: updatedAdmin,
+      });
+    }
   } catch (err) {
     log.info(err);
     res.status(500).json({ success: false, error: err.message });
@@ -673,6 +701,96 @@ const getSellPayments = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  const { email } = req.body.data;
+
+  try {
+    const findAdmin = await Admin.findOne({ email });
+
+    if (!findAdmin) {
+      res.status(400).json({
+        success: false,
+        message: 'No account with given email id exists!',
+      });
+    } else {
+      const resetToken = crypto.randomBytes(65).toString('hex');
+      const resetTokenExpire = Date.now() + 10 * (60 * 1000);
+
+      findAdmin.resetPasswordToken = resetToken;
+      findAdmin.resetPasswordExpire = resetTokenExpire;
+
+      await findAdmin.save();
+
+      const resetUrl = 'http://localhost:3000/passwordReset/${resetToken}';
+
+      const message = `
+      <h1>You have requested a password reset</h1>
+      <p>Please make a put request to the following link:</p>
+      <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
+      `;
+
+      try {
+        sendEmail({
+          to: email,
+          subject: 'Password Reset',
+          text: message,
+        });
+
+        res.status(200).json({
+          success: true,
+          message: 'Password Reset Link sent successfully!',
+        });
+        return;
+      } catch (err) {
+        findAdmin.resetPasswordToken = undefined;
+        findAdmin.resetPasswordExpire = undefined;
+        await findAdmin.save();
+        res
+          .status(500)
+          .json({ success: false, error: 'Couldnt reset password!' });
+        return;
+      }
+    }
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(req.params.resetToken)
+    .digest('hex');
+
+  try {
+    const findAdmin = await Admin.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!findAdmin) {
+      res.status(400);
+      json({ success: false, error: 'Token Expired!' });
+    } else {
+      const hashedPassword = textToHash(req.body.password);
+
+      findAdmin.password = hashedPassword;
+      findAdmin.resetPasswordToken = undefined;
+      findAdmin.resetPasswordExpire = undefined;
+
+      await findAdmin.save();
+
+      res
+        .status(201)
+        .json({ success: true, message: 'Password updated successfully!' });
+    }
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -688,4 +806,7 @@ module.exports = {
   getSoldStocks,
   getBuyPayments,
   getSellPayments,
+  updateAdminDetails,
+  forgotPassword,
+  resetPassword,
 };
