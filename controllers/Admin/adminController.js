@@ -263,6 +263,7 @@ const updateAdminDetails = async (req, res) => {
 };
 
 const createNewCategory = async (req, res) => {
+  //Set predefined Categories
   const { category } = req.body.data;
 
   try {

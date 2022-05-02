@@ -12,6 +12,8 @@ const { adminRouter, userRouter } = require('./routes');
 const session = require('express-session');
 const mongoStore = require('connect-mongo');
 
+const corsOptionsDelegate = require('./Utils/cors');
+
 connectDB();
 
 const app = express();
@@ -26,7 +28,7 @@ const store = mongoStore.create({
 });
 
 app.use(compression());
-app.use(cors());
+app.use(cors(corsOptionsDelegate));
 app.use(express.json());
 
 // app.set('trust proxy', 1);
