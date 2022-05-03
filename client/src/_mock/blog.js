@@ -33,16 +33,28 @@ const POST_TITLES = [
 const posts = [...Array(23)].map((_, index) => ({
   id: faker.datatype.uuid(),
   cover: `/static/mock-images/covers/cover_${index + 1}.jpg`,
-  title: POST_TITLES[index + 1],
+  title: faker.name.findName(),
   createdAt: faker.date.past(),
   view: faker.datatype.number(),
   comment: faker.datatype.number(),
+  paymentMode: sample(['Cash', 'Cheque', 'NEFT', 'Online Banking']),
+  transactionId: faker.datatype.uuid(),
   share: faker.datatype.number(),
   favorite: faker.datatype.number(),
   author: {
     name: faker.name.findName(),
     avatarUrl: `/static/mock-images/avatars/avatar_${index + 1}.jpg`,
   },
+  amount: faker.datatype.number(),
+  quantity: faker.datatype.number(),
+  category: sample([
+    'Health',
+    'Digital',
+    'Electronics',
+    'Gym',
+    'Education',
+    'Stationary',
+  ]),
 }));
 
 export default posts;

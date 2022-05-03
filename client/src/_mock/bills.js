@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { sample } from 'lodash';
 
-const bills = [...Array(4)].map((_, index) => ({
+const bills = [...Array(15)].map((_, index) => ({
   id: faker.datatype.uuid(),
   cover: `/static/mock-images/covers/cover_${index + 1}.jpg`,
   name: faker.name.findName(),

@@ -10,6 +10,7 @@ import {
   Avatar,
   Typography,
   CardContent,
+  Stack,
 } from '@mui/material';
 // utils
 import { fDate } from '../../../utils/formatTime';
@@ -67,6 +68,7 @@ BillCard.propTypes = {
 
 export default function BillCard({ post, index }) {
   const { cover, title, view, comment, share, author, createdAt } = post;
+  const { name, paymentMode, transactionId, amount, quantity, category } = post;
 
   const POST_INFO = [
     { number: comment, icon: 'eva:message-circle-fill' },
@@ -84,29 +86,7 @@ export default function BillCard({ post, index }) {
       md={6}
     >
       <Card sx={{ position: 'relative' }}>
-        <CardMediaStyle
-          sx={
-            {
-              // ...((latestPostLarge || latestPost) && {
-              //   pt: 'calc(100% * 4 / 3)',
-              //   '&:after': {
-              //     top: 0,
-              //     content: "''",
-              //     width: '100%',
-              //     height: '100%',
-              //     position: 'absolute',
-              //     bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
-              //   },
-              // }),
-              // ...(latestPostLarge && {
-              //   pt: {
-              //     xs: 'calc(100% * 4 / 3)',
-              //     sm: 'calc(100% * 3 / 4.66)',
-              //   },
-              // }),
-            }
-          }
-        >
+        <CardMediaStyle>
           <SvgIconStyle
             color="paper"
             src="/static/icons/shape-avatar.svg"
@@ -117,24 +97,9 @@ export default function BillCard({ post, index }) {
               bottom: -15,
               position: 'absolute',
               color: 'background.paper',
-              // ...((latestPostLarge || latestPost) && { display: 'none' }),
             }}
           />
-          <AvatarStyle
-            alt={author.name}
-            src={author.avatarUrl}
-            sx={
-              {
-                // ...((latestPostLarge || latestPost) && {
-                //   zIndex: 9,
-                //   top: 24,
-                //   left: 24,
-                //   width: 40,
-                //   height: 40,
-                // }),
-              }
-            }
-          />
+          <AvatarStyle alt={author.name} src={author.avatarUrl} />
 
           <CoverImgStyle alt={title} src={cover} />
         </CardMediaStyle>
@@ -142,11 +107,6 @@ export default function BillCard({ post, index }) {
         <CardContent
           sx={{
             pt: 4,
-            // ...((latestPostLarge || latestPost) && {
-            //   bottom: 0,
-            //   width: '100%',
-            //   position: 'absolute',
-            // }),
           }}
         >
           <Typography
@@ -157,47 +117,91 @@ export default function BillCard({ post, index }) {
             {fDate(createdAt)}
           </Typography>
 
-          <TitleStyle
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <TitleStyle
+              to="#"
+              color="inherit"
+              variant="subtitle2"
+              underline="hover"
+              component={RouterLink}
+            >
+              {title}
+            </TitleStyle>
+
+            <TitleStyle
+              variant="subtitle2"
+              sx={{
+                color: 'text.disabled',
+                display: 'block',
+                textDecoration: 'none',
+              }}
+            >
+              {category}
+            </TitleStyle>
+          </Stack>
+          {/* <TitleStyle
             to="#"
             color="inherit"
             variant="subtitle2"
             underline="hover"
             component={RouterLink}
-            sx={
-              {
-                // ...(latestPostLarge && { typography: 'h5', height: 60 }),
-                // ...((latestPostLarge || latestPost) && {
-                //   color: 'common.white',
-                // }),
-              }
-            }
           >
-            {title}
-          </TitleStyle>
+            {name}
+          </TitleStyle> */}
 
-          <InfoStyle>
-            {POST_INFO.map((info, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  ml: index === 0 ? 0 : 1.5,
-                  // ...((latestPostLarge || latestPost) && {
-                  //   color: 'grey.500',
-                  // }),
-                }}
-              >
-                <Iconify
-                  icon={info.icon}
-                  sx={{ width: 16, height: 16, mr: 0.5 }}
-                />
-                <Typography variant="caption">
-                  {fShortenNumber(info.number)}
-                </Typography>
-              </Box>
-            ))}
-          </InfoStyle>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <TitleStyle
+              // gutterBottom
+              variant="caption"
+              sx={{
+                color: 'text.disabled',
+                display: 'block',
+                textDecoration: 'none',
+              }}
+            >
+              {paymentMode}
+            </TitleStyle>
+            <TitleStyle
+              // gutterBottom
+              variant="caption"
+              sx={{
+                color: 'text.disabled',
+                display: 'block',
+                textDecoration: 'none',
+              }}
+            >
+              {transactionId}
+            </TitleStyle>
+          </Stack>
+
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <TitleStyle
+              // gutterBottom
+              variant="caption"
+              sx={{
+                color: 'text.disabled',
+                display: 'block',
+                textDecoration: 'none',
+              }}
+            >
+              {'Amount : '}
+              {amount}
+            </TitleStyle>
+            <TitleStyle
+              // gutterBottom
+              variant="caption"
+              sx={{
+                color: 'text.disabled',
+                display: 'block',
+                textDecoration: 'none',
+              }}
+            >
+              {'Quantity : '}
+              {quantity}
+            </TitleStyle>
+          </Stack>
+
+          {/* <InfoStyle>  */}
         </CardContent>
       </Card>
     </Grid>

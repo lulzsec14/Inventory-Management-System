@@ -64,7 +64,7 @@ export default function StockListToolbar({
         <SearchStyle
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Search stock..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify

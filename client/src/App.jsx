@@ -1,18 +1,4 @@
-// import logo from './logo.svg';
-// import './App.css';
-// import { useState } from 'react';
-import {
-  Routes,
-  Route,
-  // Link,
-  // useNavigate,
-  // useLocation,
-  Navigate,
-  // Outlet,
-} from 'react-router-dom';
-// import { useSelector, useDispatch } from 'react-redux';
-// import { SidePanel } from './components/SidePanel';
-// import { addUser } from './store/store';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './components/Home/Home';
 import { Login } from './components/auth/Login';
 import { Register } from './components/auth/Register';
@@ -32,10 +18,6 @@ import { PurchasedStocks } from './pages/PurchasedStocks';
 import { CreateStock } from './pages/CreateStock';
 
 function App() {
-  // const userDispatcher = useDispatch();
-
-  // const userData = useSelector((state) => state.user.value);
-
   return (
     <ThemeProvider>
       <ScrollToTop />

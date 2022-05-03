@@ -163,6 +163,10 @@ export const Profile = () => {
                         helperText={touched.email && errors.email}
                       />
 
+                      <Divider />
+
+                      <Typography>Change Password :</Typography>
+
                       <TextField
                         fullWidth
                         autoComplete="current-password"
