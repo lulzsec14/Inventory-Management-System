@@ -12,12 +12,15 @@ import {
   CardContent,
   Stack,
 } from '@mui/material';
+
+import { sentenceCase } from 'change-case';
 // utils
 import { fDate } from '../../../utils/formatTime';
 import { fShortenNumber } from '../../../utils/formatNumber';
 //
 import SvgIconStyle from '../../../components/SvgIconStyle';
 import Iconify from '../../../components/Iconify';
+import Label from '../../../components/Label';
 
 // ----------------------------------------------------------------------
 
@@ -117,7 +120,11 @@ export default function BillCard({ post, index }) {
             {fDate(createdAt)}
           </Typography>
 
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            justifyContent="space-between"
+            spacing={2}
+          >
             <TitleStyle
               to="#"
               color="inherit"
@@ -136,18 +143,12 @@ export default function BillCard({ post, index }) {
                 textDecoration: 'none',
               }}
             >
-              {category}
+              <Label variant="ghost" color={'primary'}>
+                {sentenceCase(category)}
+              </Label>
             </TitleStyle>
           </Stack>
-          {/* <TitleStyle
-            to="#"
-            color="inherit"
-            variant="subtitle2"
-            underline="hover"
-            component={RouterLink}
-          >
-            {name}
-          </TitleStyle> */}
+          
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TitleStyle

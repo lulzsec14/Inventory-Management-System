@@ -15,6 +15,7 @@ import {
   TextField,
   IconButton,
   InputAdornment,
+  Chip,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -25,6 +26,7 @@ import { useState } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
 
 import { LoadingButton } from '@mui/lab';
+import Label from '../components/Label';
 
 export const Profile = () => {
   const user = {
@@ -33,6 +35,8 @@ export const Profile = () => {
     email: 'sourav121420@gmail.com',
     phoneNo: '8968613112',
   };
+
+  const isVerified = true;
 
   const [isEdit, setIsEdit] = useState(true);
 
@@ -99,6 +103,7 @@ export const Profile = () => {
                     flexDirection: 'column',
                   }}
                 >
+                  {/* { */}
                   <Avatar
                     src={user.avatar}
                     sx={{
@@ -107,9 +112,33 @@ export const Profile = () => {
                       width: 150,
                     }}
                   />
+                </Box>
 
-                  <Divider variant="middle" />
+                <Divider>
+                  {isVerified ? (
+                    <Iconify
+                      icon="material-symbols:verified-user-rounded"
+                      width={34}
+                      height={34}
+                      sx={{ align: 'right', color: 'green' }}
+                    />
+                  ) : (
+                    <Iconify
+                      icon="carbon:unknown-filled"
+                      width={34}
+                      height={34}
+                      sx={{ align: 'right', color: 'orange' }}
+                    />
+                  )}
+                </Divider>
 
+                <Box
+                  sx={{
+                    alignItems: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
                   <Typography color="textPrimary" gutterBottom variant="h5">
                     {user.name}
                   </Typography>

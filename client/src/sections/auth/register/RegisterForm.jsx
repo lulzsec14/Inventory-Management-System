@@ -6,9 +6,16 @@ import { useNavigate } from 'react-router-dom';
 import { Stack, TextField, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
+import axios from 'axios';
+
 import Iconify from '../../../components/Iconify';
 
 export const RegisterForm = () => {
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+  };
+
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -36,10 +43,37 @@ export const RegisterForm = () => {
       password: '',
     },
     validationSchema: RegisterSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values));
-      console.log(values, null, 2);
+    onSubmit: async (values) => {
+      // alert(JSON.stringify(values));
+      // console.log(values, null, 2);
 
+      // const response = await axios.post(
+      //   'http://localhost:5000/api/admin/registerAdmin',
+      //   {
+      //     data: {
+      //       name: values.fullName,
+      //       email: values.email,
+      //       password: values.password,
+      //       phoneNo: values.phoneNo,
+      //     },
+      //   },
+      //   options
+      // );
+
+      const response = {
+        data: {
+          success: true,
+          message: 'Admin Created successfully!'
+
+        }
+      }
+
+      const { success, message, error } = response.data;
+      if (success === true) {
+        console.log(message);
+      } else {
+        console.log(error);
+      }
       navigate('/login', { replace: true });
     },
   });

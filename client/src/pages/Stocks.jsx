@@ -40,7 +40,7 @@ const TABLE_HEAD = [
   { id: 'category', label: 'Category', alignRight: false },
   { id: 'date', label: 'Date', alignRight: false },
   { id: 'amount', label: 'Amount', alignRight: false },
-  // { id: 'quantity', label: 'Quantity', alignRight: false },
+  { id: 'quantity', label: 'Quantity', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -98,7 +98,10 @@ export const Stocks = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = USERLIST.map((n) => {
+        console.log(n.id);
+        return n.name;
+      });
       setSelected(newSelecteds);
       return;
     }
@@ -177,96 +180,94 @@ export const Stocks = () => {
             onFilterName={handleFilterByName}
           />
 
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <StockListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredUsers
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      const {
-                        id,
-                        name,
-                        category,
-                        company,
-                        avatarUrl,
-                        quantity,
-                        amount,
-                        date,
-                      } = row;
+          <TableContainer sx={{ minWidth: 800 }}>
+            <Table>
+              <StockListHead
+                order={order}
+                orderBy={orderBy}
+                headLabel={TABLE_HEAD}
+                rowCount={USERLIST.length}
+                numSelected={selected.length}
+                onRequestSort={handleRequestSort}
+                onSelectAllClick={handleSelectAllClick}
+              />
+              <TableBody>
+                {filteredUsers
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => {
+                    const {
+                      id,
+                      name,
+                      category,
+                      company,
+                      avatarUrl,
+                      quantity,
+                      amount,
+                      date,
+                    } = row;
 
-                      // console.log(format(Date.now(), 'dd/MM/yyyy'));
-                      const dateAdded = format(date, 'dd/MM/yyyy');
+                    // console.log(format(Date.now(), 'dd/MM/yyyy'));
+                    const dateAdded = format(date, 'dd/MM/yyyy');
 
-                      const isItemSelected = selected.indexOf(name) !== -1;
+                    const isItemSelected = selected.indexOf(name) !== -1;
 
-                      return (
-                        <TableRow
-                          hover
-                          key={id}
-                          tabIndex={-1}
-                          role="checkbox"
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
-                        >
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={isItemSelected}
-                              onChange={(event) => handleClick(event, name)}
-                            />
-                          </TableCell>
-                          <TableCell component="th" scope="row" padding="none">
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={2}
-                            >
-                              <Avatar alt={name} src={avatarUrl} />
-                              <Typography variant="subtitle2" noWrap>
-                                {name}
-                              </Typography>
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{category}</TableCell>
-                          <TableCell align="left">{dateAdded}</TableCell>
-                          <TableCell align="left">{amount}</TableCell>
-                          {/* <TableCell align="left">{quantity}</TableCell> */}
+                    return (
+                      <TableRow
+                        hover
+                        key={id}
+                        tabIndex={-1}
+                        role="checkbox"
+                        selected={isItemSelected}
+                        aria-checked={isItemSelected}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isItemSelected}
+                            onChange={(event) => handleClick(event, name)}
+                          />
+                        </TableCell>
+                        <TableCell component="th" scope="row" padding="none">
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={2}
+                          >
+                            <Avatar alt={name} src={avatarUrl} />
+                            <Typography variant="subtitle2" noWrap>
+                              {name}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{category}</TableCell>
+                        <TableCell align="left">{dateAdded}</TableCell>
+                        <TableCell align="left">{amount}</TableCell>
+                        <TableCell align="left">{quantity}</TableCell>
 
-                          <TableCell align="right">
-                            <StockMoreMenu />
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isUserNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
+                        <TableCell align="right">
+                          <StockMoreMenu refId={id}/>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: 53 * emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
                 )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+              </TableBody>
+
+              {isUserNotFound && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <SearchNotFound searchQuery={filterName} />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
 
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

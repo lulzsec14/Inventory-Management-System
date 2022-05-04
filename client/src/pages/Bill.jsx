@@ -30,14 +30,6 @@ export const Bill = () => {
           <Typography variant="h4" gutterBottom>
             Bills
           </Typography>
-          {/* <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
-            New Post
-          </Button> */}
         </Stack>
 
         <Stack

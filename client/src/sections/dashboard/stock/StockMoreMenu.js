@@ -13,7 +13,7 @@ import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserMoreMenu() {
+export default function UserMoreMenu(props) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -45,6 +45,7 @@ export default function UserMoreMenu() {
 
         <MenuItem
           onClick={() => {
+            console.log(props.refId);
             alert('Edited!');
           }}
           component={RouterLink}
