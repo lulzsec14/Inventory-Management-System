@@ -12,6 +12,7 @@ const { v4: uuidv4 } = require('uuid');
 const SoldStocks = require('../../models/SoldStocks');
 const SellPayments = require('../../models/SellPayments');
 const comparePasswords = require('../../Utils/comparePassword');
+const jwt = require('jsonwebtoken');
 
 const getCatergoriesObject = async () => {
   try {
@@ -35,10 +36,17 @@ const registerAdmin = async (req, res) => {
 
   try {
     const finAdmin = await Admin.findOne({ email });
+    const findAdmin = await Admin.findOne({ phoneNo });
     if (finAdmin) {
       res.status(405).json({
         success: false,
-        error: 'Admin with specified email already exist!',
+        error: 'Admin with specified email already exists!',
+      });
+      return;
+    } else if (findAdmin) {
+      res.status(405).json({
+        success: false,
+        error: 'Admin with specified phoneNo already exists!',
       });
       return;
     } else {
@@ -58,6 +66,8 @@ const registerAdmin = async (req, res) => {
         emailTokenExpire: Date.now() + 5 * (60 * 1000),
         isVerified,
       });
+
+      // console.log(createdAdmin);
 
       const verificationUrl = `http://${emailDomain}/api/admin/verify-email/${emailVerificationToken}`;
 
@@ -112,12 +122,27 @@ const loginAdmin = async (req, res) => {
       return;
     }
 
-    req.session.isAuth = true;
-    req.session.bearerToken = process.env.ADMIN_TOKEN;
+    // req.session.isAuth = true;
+    const token = jwt.sign(
+      { bearerToken: process.env.ADMIN_TOKEN },
+      process.env.SECRET_KEY
+    );
+
+    res.cookie('isAuth', token, {
+      maxAge: 86400000,
+      httpOnly: true,
+    });
 
     res.status(200).json({
       success: true,
       message: 'Admin logged in successfully!',
+      adminDetails: {
+        name: findAdmin.name,
+        email: findAdmin.email,
+        isVerified: findAdmin.isVerified,
+        phoneNo: findAdmin.phoneNo,
+        id: findAdmin._id,
+      },
     });
   } catch (err) {
     log.info(err);
@@ -131,6 +156,7 @@ const logoutAdmin = async (req, res) => {
       if (e) {
         throw e;
       }
+      res.clearCookie('isAuth');
       res.status(200).json({
         success: true,
         message: 'Admin logged out successfully!',
@@ -198,6 +224,8 @@ const verifyAdmin = async (req, res) => {
     .createHash('sha256')
     .update(req.params.emailToken)
     .digest('hex');
+
+  // console.log(verifyEmailToken);
 
   try {
     const result = await Admin.findOne({
@@ -556,6 +584,7 @@ const sellStock = async (req, res) => {
 };
 
 const getStockByCategory = async (req, res) => {
+  console.log(req.cookies);
   try {
     let finalRes = {};
     let refMap = {};

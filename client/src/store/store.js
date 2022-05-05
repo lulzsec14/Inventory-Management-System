@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import Cookies from 'js-cookie';
 
 export const userSlice = createSlice({
   name: 'users',
@@ -7,9 +8,12 @@ export const userSlice = createSlice({
     addUser: (state, action) => {
       state.value = action.payload;
     },
+    removeUser: (state, action) => {
+      state.value = {};
+    },
   },
 });
 
-export const { addUser } = userSlice.actions;
+export const { addUser, removeUser } = userSlice.actions;
 
 export default userSlice.reducer;

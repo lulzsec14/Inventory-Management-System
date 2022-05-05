@@ -17,6 +17,8 @@ import MenuPopover from '../components/MenuPopover';
 import account from '../_mock/account';
 import { useDispatch } from 'react-redux';
 import { removeAuth } from '../store/authStore';
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +36,7 @@ const MENU_OPTIONS = [
   {
     label: 'Profile',
     icon: 'eva:settings-2-fill',
-    linkTo: '/profile',
+    linkTo: '/dashboard/profile',
   },
 ];
 
@@ -43,8 +45,16 @@ const MENU_OPTIONS = [
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export default function AccountPopover() {
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+    credentials: 'include',
+  };
+
   const anchorRef = useRef(null);
   const navigate = useNavigate();
+
+  const userDetails = JSON.parse(Cookies.get('user'));
 
   const authDispatcher = useDispatch();
 
@@ -63,11 +73,22 @@ export default function AccountPopover() {
   };
 
   const handleLogout = async () => {
+    try {
+      const { data } = await axios.delete(
+        `http://localhost:5000/api/admin/logoutAdmin`,
+        options
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
     setOpen(null);
-    await sleep(500);
     authDispatcher(removeAuth());
-    alert('Logging out!');
-    navigate('/login', { replace: true });
+    Cookies.remove('user');
+    Cookies.remove('auth');
+
+    await sleep(500);
+    // alert('Logging out!');
+    navigate('/login');
   };
 
   return (
@@ -109,10 +130,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {userDetails.name}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {userDetails.email}
           </Typography>
         </Box>
 

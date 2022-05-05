@@ -22,6 +22,9 @@ import Scrollbar from '../components/Scrollbar';
 import NavSection from '../components/NavSection';
 //
 import navConfig from './NavConfig';
+import { useSelector, useDispatch } from 'react-redux';
+import Cookies from 'js-cookie';
+import { addUser } from '../store/store';
 
 // ----------------------------------------------------------------------
 
@@ -52,6 +55,9 @@ DashboardSidebar.propTypes = {
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
 
+  const userDetails = useSelector((state) => state.user.value);
+  const userDispatcher = useDispatch();
+
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -60,6 +66,12 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  useEffect(() => {
+    // userDetails = useSelector((state) => state.user.value);
+    // userDetails = JSON.parse(Cookies.get('user'));
+    userDispatcher(addUser(JSON.parse(Cookies.get('user'))));
+  }, []);
 
   const renderContent = (
     <Scrollbar
@@ -82,10 +94,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {userDetails.name}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                Admin
               </Typography>
             </Box>
           </AccountStyle>
@@ -95,7 +107,6 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       <NavSection navConfig={navConfig} />
 
       <Box sx={{ flexGrow: 1 }} />
-
     </Scrollbar>
   );
 

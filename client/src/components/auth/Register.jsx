@@ -1,7 +1,15 @@
 import { Link as RouterLink } from 'react-router-dom';
-
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Card, Link, Container, Typography } from '@mui/material';
+import {
+  Card,
+  Link,
+  Container,
+  Typography,
+  Snackbar,
+  Alert,
+  Button,
+} from '@mui/material';
 
 import useResponsive from '../../hooks/useResponsive';
 
@@ -56,6 +64,23 @@ export const Register = () => {
 
   const mdUp = useResponsive('up', 'md');
 
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(
+    'Account Registered successfully!'
+  );
+  const [snackColor, setSnackColor] = useState('success');
+
+  const handleSnackClick = () => {
+    setSnackOpen(true);
+  };
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackOpen(false);
+  };
+
   return (
     <Page title="Register">
       <RootStyle>
@@ -95,7 +120,11 @@ export const Register = () => {
 
             {/* <AuthSocial /> */}
 
-            <RegisterForm />
+            <RegisterForm
+              setSnackOpen={setSnackOpen}
+              setSnackMessage={setSnackMessage}
+              setSnackColor={setSnackColor}
+            />
 
             <Typography
               variant="body2"
@@ -123,6 +152,21 @@ export const Register = () => {
             )}
           </ContentStyle>
         </Container>
+        <Snackbar
+          open={snackOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          // key={'top'+'right'}
+        >
+          <Alert
+            onClose={handleSnackClose}
+            severity={snackColor}
+            sx={{ width: '100%' }}
+          >
+            {snackMessage}
+          </Alert>
+        </Snackbar>
       </RootStyle>
     </Page>
   );

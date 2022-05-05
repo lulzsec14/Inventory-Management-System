@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 // components
 import Page from '../components/Page';
-import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import {
@@ -124,7 +123,7 @@ export const Stocks = () => {
       );
     }
     setSelected(newSelected);
-    console.log(selected);
+    // console.log(selected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -245,7 +244,7 @@ export const Stocks = () => {
                         <TableCell align="left">{quantity}</TableCell>
 
                         <TableCell align="right">
-                          <StockMoreMenu refId={id}/>
+                          <StockMoreMenu refId={id} />
                         </TableCell>
                       </TableRow>
                     );

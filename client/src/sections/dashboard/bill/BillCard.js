@@ -70,14 +70,24 @@ BillCard.propTypes = {
 };
 
 export default function BillCard({ post, index }) {
-  const { cover, title, view, comment, share, author, createdAt } = post;
-  const { name, paymentMode, transactionId, amount, quantity, category } = post;
+  // const { cover, title, view, comment, share, author, createdAt } = post;
+  // const { name, paymentMode, transactionId, amount, quantity, category } = post;
+  const {
+    amount,
+    category,
+    name,
+    paymentDate,
+    paymentMode,
+    quantity,
+    stockReference,
+    transactionId,
+  } = post;
 
-  const POST_INFO = [
-    { number: comment, icon: 'eva:message-circle-fill' },
-    { number: view, icon: 'eva:eye-fill' },
-    { number: share, icon: 'eva:share-fill' },
-  ];
+  // const POST_INFO = [
+  //   { number: comment, icon: 'eva:message-circle-fill' },
+  //   { number: view, icon: 'eva:eye-fill' },
+  //   { number: share, icon: 'eva:share-fill' },
+  // ];
 
   return (
     <Grid
@@ -102,9 +112,15 @@ export default function BillCard({ post, index }) {
               color: 'background.paper',
             }}
           />
-          <AvatarStyle alt={author.name} src={author.avatarUrl} />
+          <AvatarStyle
+            alt={name}
+            src={`/static/mock-images/avatars/avatar_${index + 1}.jpg`}
+          />
 
-          <CoverImgStyle alt={title} src={cover} />
+          <CoverImgStyle
+            alt={name}
+            src={`/static/mock-images/covers/cover_${index + 1}.jpg`}
+          />
         </CardMediaStyle>
 
         <CardContent
@@ -117,7 +133,7 @@ export default function BillCard({ post, index }) {
             variant="caption"
             sx={{ color: 'text.disabled', display: 'block' }}
           >
-            {fDate(createdAt)}
+            {fDate(paymentDate)}
           </Typography>
 
           <Stack
@@ -132,7 +148,7 @@ export default function BillCard({ post, index }) {
               underline="hover"
               component={RouterLink}
             >
-              {title}
+              {name}
             </TitleStyle>
 
             <TitleStyle
@@ -144,11 +160,10 @@ export default function BillCard({ post, index }) {
               }}
             >
               <Label variant="ghost" color={'primary'}>
-                {sentenceCase(category)}
+                {sentenceCase(category.name)}
               </Label>
             </TitleStyle>
           </Stack>
-          
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TitleStyle

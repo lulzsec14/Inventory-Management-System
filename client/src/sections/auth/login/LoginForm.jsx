@@ -15,10 +15,29 @@ import {
 import { LoadingButton } from '@mui/lab';
 
 import Iconify from '../../../components/Iconify';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addAuth } from '../../../store/authStore';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { addUser } from '../../../store/store';
 
-export default function LoginForm() {
+export default function LoginForm({
+  setSnackOpen,
+  setSnackMessage,
+  setSnackColor,
+}) {
+  const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
+
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+    credentials: 'include',
+  };
+
+  const userDispatcher = useDispatch();
+
   const navigate = useNavigate();
 
   const authDispatcher = useDispatch();
@@ -32,6 +51,8 @@ export default function LoginForm() {
     password: Yup.string().required('Password is required').min(8),
   });
 
+  // const tempUserDetails = useSelector((state) => state.user.value);
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -40,12 +61,47 @@ export default function LoginForm() {
     },
     validationSchema: LoginSchema,
     onSubmit: async (values) => {
-      console.log(values);
-
       authDispatcher(addAuth(true));
 
-      alert(JSON.stringify(values, null, 2));
-      navigate('/dashboard', { replace: true });
+      try {
+        const { data } = await axios.post(
+          'http://localhost:5000/api/admin/loginAdmin',
+          {
+            data: {
+              email: values.email,
+              password: values.password,
+            },
+          },
+          options
+        );
+
+        // console.log(data.adminDetails);
+        authDispatcher(addAuth(true));
+
+        userDispatcher(addUser(data.adminDetails));
+
+        // console.log(tempUserDetails);
+
+        Cookies.set('user', JSON.stringify(data.adminDetails), { expires: 1 });
+        Cookies.set('auth', JSON.stringify({ isAuth: true }), { expires: 1 });
+
+        // const temp = Cookies.get('user');
+
+        // console.log(JSON.parse(temp));
+
+        setSnackColor('success');
+        setSnackMessage(data.message);
+        setSnackOpen(true);
+        await sleep(3000);
+        navigate('/dashboard', { replace: true });
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+
+      // alert(JSON.stringify(values, null, 2));
+      // navigate('/dashboard', { replace: true });
     },
   });
 

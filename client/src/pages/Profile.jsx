@@ -20,15 +20,19 @@ import {
 // components
 import Page from '../components/Page';
 import Iconify from '../components/Iconify';
+import { addUser } from '../store/store';
+import Cookies from 'js-cookie';
 
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { LoadingButton } from '@mui/lab';
 import Label from '../components/Label';
 
 export const Profile = () => {
+  const [isVerified, setIsVerified] = useState(true);
   const user = {
     name: 'Sourav',
     avatar: '/static/mock-images/avatars/avatar_default.jpg',
@@ -36,7 +40,19 @@ export const Profile = () => {
     phoneNo: '8968613112',
   };
 
-  const isVerified = true;
+  const userDetails = useSelector((state) => state.user.value);
+  const userDispatcher = useDispatch();
+
+  useEffect(() => {
+    // userDetails = useSelector((state) => state.user.value);
+    // userDetails = JSON.parse(Cookies.get('user'));
+    const USER_DETAILS = JSON.parse(Cookies.get('user'));
+    console.log(USER_DETAILS);
+    userDispatcher(addUser(USER_DETAILS));
+    setIsVerified(USER_DETAILS.isVerified);
+    console.log(userDetails);
+    // setIsVerified(userDetails.isVerified);
+  }, []);
 
   const [isEdit, setIsEdit] = useState(true);
 
@@ -53,9 +69,9 @@ export const Profile = () => {
 
   const formik = useFormik({
     initialValues: {
-      fullName: user.name,
-      phoneNo: user.phoneNo,
-      email: user.email,
+      fullName: userDetails.name,
+      phoneNo: userDetails.phoneNo,
+      email: userDetails.email,
       password: '',
     },
     validationSchema: UserDetails,
@@ -140,13 +156,13 @@ export const Profile = () => {
                   }}
                 >
                   <Typography color="textPrimary" gutterBottom variant="h5">
-                    {user.name}
+                    {userDetails.name}
                   </Typography>
                   <Typography color="textSecondary" variant="body2">
-                    {user.email}
+                    {userDetails.email}
                   </Typography>
                   <Typography color="textSecondary" variant="body2">
-                    {user.phoneNo}
+                    {userDetails.phoneNo}
                   </Typography>
                 </Box>
               </CardContent>

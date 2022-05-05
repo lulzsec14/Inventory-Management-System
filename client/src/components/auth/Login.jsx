@@ -1,7 +1,14 @@
 import { Link as RouterLink } from 'react-router-dom';
-
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Card, Link, Container, Typography } from '@mui/material';
+import {
+  Card,
+  Link,
+  Container,
+  Typography,
+  Snackbar,
+  Alert,
+} from '@mui/material';
 
 import useResponsive from '../../hooks/useResponsive';
 
@@ -56,6 +63,23 @@ export const Login = () => {
 
   const mdUp = useResponsive('up', 'md');
 
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(
+    'Adminn Logged In successfully!'
+  );
+  const [snackColor, setSnackColor] = useState('success');
+
+  const handleSnackClick = () => {
+    setSnackOpen(true);
+  };
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackOpen(false);
+  };
+
   return (
     <Page title="Login">
       <RootStyle>
@@ -96,7 +120,11 @@ export const Login = () => {
 
             {/* <AuthSocial /> */}
 
-            <LoginForm />
+            <LoginForm
+              setSnackOpen={setSnackOpen}
+              setSnackMessage={setSnackMessage}
+              setSnackColor={setSnackColor}
+            />
 
             {!smUp && (
               <Typography variant="body2" align="center" sx={{ mt: 3 }}>
@@ -108,6 +136,22 @@ export const Login = () => {
             )}
           </ContentStyle>
         </Container>
+
+        <Snackbar
+          open={snackOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          // key={'top'+'right'}
+        >
+          <Alert
+            onClose={handleSnackClose}
+            severity={snackColor}
+            sx={{ width: '100%' }}
+          >
+            {snackMessage}
+          </Alert>
+        </Snackbar>
       </RootStyle>
     </Page>
   );

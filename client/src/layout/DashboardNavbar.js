@@ -5,10 +5,14 @@ import { Box, Stack, AppBar, Toolbar, IconButton } from '@mui/material';
 // components
 import Iconify from '../components/Iconify';
 //
+import { useEffect } from 'react';
+import { addUser } from '../store/store';
+import Cookies from 'js-cookie';
 import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
+import { useSelector, useDispatch } from 'react-redux';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +45,15 @@ DashboardNavbar.propTypes = {
 };
 
 export default function DashboardNavbar({ onOpenSidebar }) {
+  const userDetails = useSelector((state) => state.user.value);
+  const userDispatcher = useDispatch();
+
+  useEffect(() => {
+    // userDetails = useSelector((state) => state.user.value);
+    // userDetails = JSON.parse(Cookies.get('user'));
+    userDispatcher(addUser(JSON.parse(Cookies.get('user'))));
+  }, []);
+
   return (
     <RootStyle>
       <ToolbarStyle>

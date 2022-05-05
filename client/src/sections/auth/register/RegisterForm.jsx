@@ -10,7 +10,15 @@ import axios from 'axios';
 
 import Iconify from '../../../components/Iconify';
 
-export const RegisterForm = () => {
+export const RegisterForm = ({
+  setSnackOpen,
+  setSnackMessage,
+  setSnackColor,
+}) => {
+  const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
+
   const options = {
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,
@@ -44,37 +52,34 @@ export const RegisterForm = () => {
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values) => {
-      // alert(JSON.stringify(values));
-      // console.log(values, null, 2);
+      try {
+        const { data } = await axios.post(
+          'http://localhost:5000/api/admin/registerAdmin',
+          {
+            data: {
+              name: values.fullName,
+              email: values.email,
+              password: values.password,
+              phoneNo: values.phoneNo,
+            },
+          },
+          options
+        );
 
-      // const response = await axios.post(
-      //   'http://localhost:5000/api/admin/registerAdmin',
-      //   {
-      //     data: {
-      //       name: values.fullName,
-      //       email: values.email,
-      //       password: values.password,
-      //       phoneNo: values.phoneNo,
-      //     },
-      //   },
-      //   options
-      // );
+        setSnackColor('success');
+        setSnackMessage(data.message);
+        setSnackOpen(true);
+        await sleep(3000);
+        navigate('/login', { replace: true });
 
-      const response = {
-        data: {
-          success: true,
-          message: 'Admin Created successfully!'
-
-        }
+        // console.log(data);
+      } catch (err) {
+        // console.log('Here');
+        // console.log(err?.response?.data);
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
       }
-
-      const { success, message, error } = response.data;
-      if (success === true) {
-        console.log(message);
-      } else {
-        console.log(error);
-      }
-      navigate('/login', { replace: true });
     },
   });
 

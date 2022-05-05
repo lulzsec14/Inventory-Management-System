@@ -19,6 +19,8 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -31,7 +33,8 @@ import { useFormik, Form, FormikProvider } from 'formik';
 import MonetizationOnSharpIcon from '@mui/icons-material/MonetizationOnSharp';
 
 import { LoadingButton } from '@mui/lab';
-import Scrollbar from '../components/Scrollbar';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 export const CreateStock = () => {
   const user = {
@@ -40,6 +43,36 @@ export const CreateStock = () => {
     email: 'sourav121420@gmail.com',
     phoneNo: '8968613112',
   };
+
+  const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
+
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+  };
+
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(
+    'Stock created successfully!'
+  );
+  const [snackColor, setSnackColor] = useState('success');
+
+  const handleSnackClick = () => {
+    setSnackOpen(true);
+  };
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackOpen(false);
+  };
+
+  // useEffect(() => {
+  //   const
+  // },[])
 
   const categories = ['Health', 'Electronics', 'Gym', 'Stationary'];
 
@@ -76,7 +109,39 @@ export const CreateStock = () => {
       transactionId: '',
     },
     validationSchema: stockDetails,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
+      try {
+        const { data } = await axios.post(
+          'http://localhost:5000/api/admin/createNewStock',
+          {
+            data: {
+              name: values.name,
+              category: values.category,
+              seller: {
+                name: values.sellerName,
+                address: values.address,
+                phoneNo: values.phoneNo,
+              },
+              amount: values.amount,
+              quantity: values.quantity,
+              paymentMode: values.mode,
+              transactionId: values.transactionId,
+            },
+          },
+          options
+        );
+
+        setSnackColor('success');
+        setSnackMessage(data.message);
+        setSnackOpen(true);
+        await sleep(3000);
+        navigate('/dashboard/stocks', { replace: true });
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+
       alert(JSON.stringify(values, null, 2));
     },
   });
@@ -95,17 +160,7 @@ export const CreateStock = () => {
           <Typography variant="h4" gutterBottom>
             Create Stock
           </Typography>
-          {/* <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Iconify icon="ci:edit" />}
-            onClick={handleEdit}
-          >
-            Edit Details
-          </Button> */}
         </Stack>
-        {/* <Scrollbar> */}
         <Grid container spacing={3}>
           <Grid item lg={10}>
             <Card sx={{ padding: 5, width: '100%' }}>
@@ -113,10 +168,6 @@ export const CreateStock = () => {
                 <FormikProvider value={formik}>
                   <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
                     <Stack spacing={3}>
-                      {/* <Stack
-                        direction={{ xs: 'column', sm: 'row' }}
-                        spacing={2}
-                      > */}
                       <TextField
                         fullWidth
                         label="Name"
@@ -141,7 +192,6 @@ export const CreateStock = () => {
                           />
                           <TextField
                             fullWidth
-                            // id="input-with-sx"
                             label="Amount"
                             type="number"
                             variant="standard"
@@ -170,7 +220,6 @@ export const CreateStock = () => {
                           id="category"
                           {...getFieldProps('category')}
                           label="Category"
-                          // onChange={handleChange}
                         >
                           {categories.map((val) => {
                             return (
@@ -179,13 +228,8 @@ export const CreateStock = () => {
                               </MenuItem>
                             );
                           })}
-
-                          {/* <MenuItem value={10}>Ten</MenuItem>
-                          <MenuItem value={20}>Twenty</MenuItem>
-                          <MenuItem value={30}>Thirty</MenuItem> */}
                         </Select>
                       </FormControl>
-                      {/* </Stack> */}
                       <Divider />
 
                       <Typography gutterBottom>Seller Details :</Typography>
@@ -248,17 +292,6 @@ export const CreateStock = () => {
                         }
                       />
 
-                      {/* <TextField
-                        fullWidth
-                        disabled={isEdit}
-                        autoComplete="username"
-                        type="email"
-                        label="Email address"
-                        {...getFieldProps('email')}
-                        error={Boolean(touched.email && errors.email)}
-                        helperText={touched.email && errors.email}
-                      /> */}
-
                       <LoadingButton
                         fullWidth
                         size="large"
@@ -275,8 +308,22 @@ export const CreateStock = () => {
             </Card>
           </Grid>
         </Grid>
-        {/* </Scrollbar> */}
       </Container>
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        // key={'top'+'right'}
+      >
+        <Alert
+          onClose={handleSnackClose}
+          severity={snackColor}
+          sx={{ width: '100%' }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </Page>
   );
 };

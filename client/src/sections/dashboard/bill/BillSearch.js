@@ -28,12 +28,12 @@ export default function BillSearch({ posts }) {
       popupIcon={null}
       PopperComponent={PopperStyle}
       options={posts}
-      getOptionLabel={(post) => post.title}
+      getOptionLabel={(post) => post.name}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       renderInput={(params) => (
         <TextField
           {...params}
-          placeholder="Search post..."
+          placeholder="Search bills..."
           InputProps={{
             ...params.InputProps,
             startAdornment: (
