@@ -3,13 +3,71 @@ import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
+import { Grid, Container, Typography, Snackbar, Alert } from '@mui/material';
 import { AppWidgetSummary } from '../sections/dashboard/app';
 import { AppTotalSales } from '../sections/dashboard/app';
 import CategorySales from '../sections/dashboard/app/CategorySales';
+import { useEffect, useState } from 'react';
+
+import axios from 'axios';
 
 export const DashboardApp = () => {
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+  };
+
+  const [currentStocks, setCurrentStocks] = useState(0);
+
+  // SnackBar
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(
+    'Stocks fetched successfully!'
+  );
+  const [snackColor, setSnackColor] = useState('success');
+
+  const [stockData, setStockData] = useState([]);
+
+  const [dataChange, setDataChange] = useState(false);
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackOpen(false);
+  };
+  // --------------------------------------
+
   const theme = useTheme();
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/admin/getAllStocks`,
+          options
+        );
+
+        // console.log(data.data.length);
+        setCurrentStocks(data.data.length);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+    };
+
+    const fetchPurchasedStocks = async () => {
+      try {
+        const {data} = await axios.get(`http://localhost:5000/api/admin/getAllStocks`, options)
+        
+      } catch (err) {
+        
+      }
+    }
+
+    fetchDetails().then();
+  }, []);
 
   return (
     <Page title="Dashboard">
@@ -22,7 +80,7 @@ export const DashboardApp = () => {
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Stocks Available"
-              total={714000}
+              total={currentStocks}
               color="success"
               icon={'fa6-solid:box'}
             />
@@ -108,6 +166,22 @@ export const DashboardApp = () => {
           </Grid>
         </Grid>
       </Container>
+
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        // key={'top'+'right'}
+      >
+        <Alert
+          onClose={handleSnackClose}
+          severity={snackColor}
+          sx={{ width: '100%' }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </Page>
   );
 };

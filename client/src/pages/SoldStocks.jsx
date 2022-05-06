@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // material
 import {
@@ -18,10 +18,11 @@ import {
   Typography,
   TableContainer,
   TablePagination,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
-import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import {
@@ -31,6 +32,7 @@ import {
 } from '../sections/dashboard/stock';
 // mock
 import USERLIST from '../_mock/user';
+import axios from 'axios';
 
 // ----------------------------------------------------------------------
 
@@ -40,9 +42,10 @@ const TABLE_HEAD = [
   { id: 'category', label: 'Category', alignRight: false },
   { id: 'date', label: 'Date', alignRight: false },
   { id: 'amount', label: 'Amount', alignRight: false },
-  // { id: 'quantity', label: 'Quantity', alignRight: false },
+  { id: 'quantity', label: 'Quantity', alignRight: false },
 ];
 
+// const AVATAR_URL = `/static/mock-images/avatars/avatar_${index + 1}.jpg`
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -78,6 +81,11 @@ function applySortFilter(array, comparator, query) {
 }
 
 export const SoldStocks = () => {
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+  };
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -90,6 +98,64 @@ export const SoldStocks = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  // SnackBar
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(
+    'Stocks fetched successfully!'
+  );
+  const [snackColor, setSnackColor] = useState('success');
+
+  const [stockData, setStockData] = useState([]);
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackOpen(false);
+  };
+  // --------------------------------------
+
+  useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const { data } = await axios.get(
+          'http://localhost:5000/api/admin/getAllSoldStocks',
+          options
+        );
+        // console.log(data.data);
+
+        const responsedata = data.data;
+        // console.log(responsedata);
+        const finalData = [];
+
+        responsedata.forEach((element, index) => {
+          const temp = {};
+          temp.name = element.name;
+          temp.id = element._id;
+          temp.date = new Date(element.dateSold);
+          temp.amount = element.amount;
+          temp.quantity = element.quantity;
+          temp.seller = element.customer.name;
+          temp.category = element.category.name;
+          temp.avatarUrl = `/static/mock-images/avatars/avatar_${
+            (index + 1) % 25
+          }.jpg`;
+
+          finalData.push(temp);
+        });
+
+        // console.log(finalData);
+        setStockData(finalData);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+    };
+
+    fetchStocks().then();
+  }, []);
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -98,7 +164,10 @@ export const SoldStocks = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = stockData.map((n) => {
+        console.log(n.id);
+        return n.name;
+      });
       setSelected(newSelecteds);
       return;
     }
@@ -121,7 +190,7 @@ export const SoldStocks = () => {
       );
     }
     setSelected(newSelected);
-    console.log(selected);
+    // console.log(selected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -138,18 +207,21 @@ export const SoldStocks = () => {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stockData.length) : 0;
 
   const filteredUsers = applySortFilter(
-    USERLIST,
+    stockData,
     getComparator(order, orderBy),
     filterName
   );
 
   const isUserNotFound = filteredUsers.length === 0;
 
+  // console.log(stockData);
+  // console.log(stockData);
+
   return (
-    <Page title="Sold Stocks">
+    <Page title="Stocks">
       <Container>
         <Stack
           direction="row"
@@ -160,14 +232,14 @@ export const SoldStocks = () => {
           <Typography variant="h4" gutterBottom>
             Sold Stocks
           </Typography>
-          <Button
+          {/* <Button
             variant="contained"
             component={RouterLink}
             to="/dashboard/createstock"
             startIcon={<Iconify icon="eva:plus-fill" />}
           >
             Add Stock
-          </Button>
+          </Button> */}
         </Stack>
 
         <Card>
@@ -177,14 +249,13 @@ export const SoldStocks = () => {
             onFilterName={handleFilterByName}
           />
 
-          {/* <Scrollbar> */}
           <TableContainer sx={{ minWidth: 800 }}>
             <Table>
               <StockListHead
                 order={order}
                 orderBy={orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={USERLIST.length}
+                rowCount={stockData.length}
                 numSelected={selected.length}
                 onRequestSort={handleRequestSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -197,7 +268,7 @@ export const SoldStocks = () => {
                       id,
                       name,
                       category,
-                      company,
+                      seller,
                       avatarUrl,
                       quantity,
                       amount,
@@ -236,15 +307,15 @@ export const SoldStocks = () => {
                             </Typography>
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{seller}</TableCell>
                         <TableCell align="left">{category}</TableCell>
                         <TableCell align="left">{dateAdded}</TableCell>
                         <TableCell align="left">{amount}</TableCell>
-                        {/* <TableCell align="left">{quantity}</TableCell> */}
+                        <TableCell align="left">{quantity}</TableCell>
 
-                        <TableCell align="right">
-                          <StockMoreMenu />
-                        </TableCell>
+                        {/* <TableCell align="right">
+                          <StockMoreMenu refId={id} />
+                        </TableCell> */}
                       </TableRow>
                     );
                   })}
@@ -266,12 +337,11 @@ export const SoldStocks = () => {
               )}
             </Table>
           </TableContainer>
-          {/* </Scrollbar> */}
 
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={stockData.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -279,6 +349,21 @@ export const SoldStocks = () => {
           />
         </Card>
       </Container>
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        // key={'top'+'right'}
+      >
+        <Alert
+          onClose={handleSnackClose}
+          severity={snackColor}
+          sx={{ width: '100%' }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </Page>
   );
 };

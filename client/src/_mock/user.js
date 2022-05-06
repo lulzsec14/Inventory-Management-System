@@ -8,6 +8,7 @@ const users = [...Array(52)].map((_, index) => ({
   avatarUrl: `/static/mock-images/avatars/avatar_${index + 1}.jpg`,
   name: faker.name.findName(),
   company: faker.company.companyName(),
+  seller: faker.address.cityName(),
   isVerified: faker.datatype.boolean(),
   date: faker.date.past(),
   category: sample([

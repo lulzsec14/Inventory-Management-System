@@ -1,8 +1,14 @@
 import { format } from 'date-fns';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import * as Yup from 'yup';
+import { useFormik, Form, FormikProvider } from 'formik';
+
+import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { LoadingButton } from '@mui/lab';
+import MonetizationOnSharpIcon from '@mui/icons-material/MonetizationOnSharp';
+
 // material
 import {
   Card,
@@ -18,7 +24,19 @@ import {
   Typography,
   TableContainer,
   TablePagination,
+  Snackbar,
+  Alert,
+  Backdrop,
+  Modal,
+  Fade,
+  Box,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Divider,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
 // components
 import Page from '../components/Page';
 import Iconify from '../components/Iconify';
@@ -30,6 +48,8 @@ import {
 } from '../sections/dashboard/stock';
 // mock
 import USERLIST from '../_mock/user';
+import axios from 'axios';
+import { ModalForm } from '../sections/dashboard/stock/ModalForm';
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +62,57 @@ const TABLE_HEAD = [
   { id: 'quantity', label: 'Quantity', alignRight: false },
 ];
 
+// const AVATAR_URL = `/static/mock-images/avatars/avatar_${index + 1}.jpg`
 // ----------------------------------------------------------------------
+
+const RootStyle = styled('div')(({ theme }) => ({
+  [theme.breakpoints.up('md')]: {
+    display: 'flex',
+  },
+}));
+
+const HeaderStyle = styled('header')(({ theme }) => ({
+  top: 0,
+  zIndex: 9,
+  lineHeight: 0,
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  position: 'absolute',
+  padding: theme.spacing(3),
+  justifyContent: 'space-between',
+  [theme.breakpoints.up('md')]: {
+    alignItems: 'flex-start',
+    padding: theme.spacing(7, 5, 0, 7),
+  },
+}));
+
+const SectionStyle = styled(Card)(({ theme }) => ({
+  width: '100%',
+  maxWidth: 464,
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  margin: theme.spacing(2, 0, 2, 2),
+}));
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '65%',
+  // padding: '44px',
+  // height: '40%',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+const sleep = (milliseconds) => {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -77,6 +147,11 @@ function applySortFilter(array, comparator, query) {
 }
 
 export const Stocks = () => {
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+  };
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -89,6 +164,163 @@ export const Stocks = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  // Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const handleModalOpen = () => setModalOpen(true);
+  const handleModalClose = () => setModalOpen(false);
+  // --------------------------------------
+
+  // SnackBar
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(
+    'Stocks fetched successfully!'
+  );
+  const [snackColor, setSnackColor] = useState('success');
+
+  const [stockData, setStockData] = useState([]);
+
+  const [dataChange, setDataChange] = useState(false);
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackOpen(false);
+  };
+  // --------------------------------------
+
+  // Modal
+  const SellSchema = Yup.object().shape({
+    stockId: Yup.string(),
+    name: Yup.string(),
+    amount: Yup.number().required('Amount is required'),
+    quantity: Yup.number().required('Quantity is required'),
+    paymentMode: Yup.string()
+      .min(3, 'Too short!')
+      .max(10, 'Too long!')
+      .required('Payment Mode is required!'),
+    transactionId: Yup.string()
+      .min(8, 'Too Short!')
+      .max(50, 'Too Long!')
+      .required(),
+    customerName: Yup.string()
+      .min(2, 'Too Short!')
+      .max(50, 'Too Long!')
+      .required(),
+    address: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required(),
+    phoneNo: Yup.string()
+      .min(8, 'Too Short!')
+      .max(12, 'Too Long!')
+      .required('Phone No required'),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      stockId: '',
+      name: '',
+      amount: '',
+      quantity: '',
+      paymentMode: '',
+      transactionId: '',
+      customerName: '',
+      address: '',
+      phoneNo: '',
+    },
+    validationSchema: SellSchema,
+    onSubmit: async (values) => {
+      // values.name = currentStockName;
+      // values.stockId = currentStockId;
+      // alert(JSON.stringify(values, null, 2));
+      try {
+        const { data } = await axios.put(
+          'http://localhost:5000/api/admin/sellStock',
+          {
+            data: {
+              stockId: values.stockId,
+              amount: values.amount,
+              quantity: values.quantity,
+              paymentMode: values.paymentMode,
+              transactionId: values.transactionId,
+              customer: {
+                name: values.customerName,
+                address: values.address,
+                phoneNo: values.phoneNo,
+              },
+            },
+          },
+          options
+        );
+        setSnackColor('success');
+        setSnackMessage(data.message);
+        setSnackOpen(true);
+        handleModalClose();
+        setDataChange(!dataChange);
+        values.amount = '';
+        values.quantity = '';
+        values.paymentMode = '';
+        values.transactionId = '';
+        values.customerName = '';
+        values.address = '';
+        values.phoneNo = '';
+
+        // await sleep(3000);
+        // navigate('/login', { replace: true });
+        // console.log(data);
+      } catch (err) {
+        // console.log('Here');
+        // console.log(err?.response?.data);
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+    },
+  });
+
+  const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
+
+  // --------------------------------------
+
+  useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const { data } = await axios.get(
+          'http://localhost:5000/api/admin/getAllStocks',
+          options
+        );
+        // console.log(data.data);
+
+        const responsedata = data.data;
+        // console.log(responsedata);
+        const finalData = [];
+
+        responsedata.forEach((element, index) => {
+          const temp = {};
+          temp.name = element.name;
+          temp.id = element.stockId;
+          temp.date = new Date(element.datePurchased);
+          temp.amount = element.amount;
+          temp.quantity = element.quantity;
+          temp.seller = element.seller.name;
+          temp.category = element.category.name;
+          temp.avatarUrl = `/static/mock-images/avatars/avatar_${
+            (index + 1) % 25
+          }.jpg`;
+
+          finalData.push(temp);
+        });
+
+        // console.log(finalData);
+        setStockData(finalData);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+    };
+
+    fetchStocks().then();
+  }, [dataChange]);
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -97,7 +329,7 @@ export const Stocks = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => {
+      const newSelecteds = stockData.map((n) => {
         console.log(n.id);
         return n.name;
       });
@@ -140,15 +372,18 @@ export const Stocks = () => {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stockData.length) : 0;
 
   const filteredUsers = applySortFilter(
-    USERLIST,
+    stockData,
     getComparator(order, orderBy),
     filterName
   );
 
   const isUserNotFound = filteredUsers.length === 0;
+
+  // console.log(stockData);
+  // console.log(stockData);
 
   return (
     <Page title="Stocks">
@@ -185,7 +420,7 @@ export const Stocks = () => {
                 order={order}
                 orderBy={orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={USERLIST.length}
+                rowCount={stockData.length}
                 numSelected={selected.length}
                 onRequestSort={handleRequestSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -198,7 +433,7 @@ export const Stocks = () => {
                       id,
                       name,
                       category,
-                      company,
+                      seller,
                       avatarUrl,
                       quantity,
                       amount,
@@ -237,14 +472,23 @@ export const Stocks = () => {
                             </Typography>
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{seller}</TableCell>
                         <TableCell align="left">{category}</TableCell>
                         <TableCell align="left">{dateAdded}</TableCell>
                         <TableCell align="left">{amount}</TableCell>
                         <TableCell align="left">{quantity}</TableCell>
 
                         <TableCell align="right">
-                          <StockMoreMenu refId={id} />
+                          <StockMoreMenu
+                            refId={id}
+                            refName={name}
+                            formik={formik}
+                            handleModalOpen={handleModalOpen}
+                            handleModalClose={handleModalClose}
+                            setSnackColor={setSnackColor}
+                            setSnackMessage={setSnackMessage}
+                            setSnackOpen={setSnackOpen}
+                          />
                         </TableCell>
                       </TableRow>
                     );
@@ -271,7 +515,7 @@ export const Stocks = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={stockData.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -279,6 +523,196 @@ export const Stocks = () => {
           />
         </Card>
       </Container>
+      <RootStyle>
+        <Modal
+          // aria-labelledby="transition-modal-title"
+          // aria-describedby="transition-modal-description"
+          open={modalOpen}
+          onClose={handleModalClose}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
+        >
+          <Fade in={modalOpen}>
+            {/* <>
+            <ModalForm
+              setSnackOpen={setSnackOpen}
+              setSnackMessage={setSnackMessage}
+              setSnackColor={setSnackColor}
+            />
+          </> */}
+            <Box sx={modalStyle}>
+              <Typography
+                id="transition-modal-title"
+                variant="h6"
+                component="h2"
+              >
+                Sell Stock
+              </Typography>
+              <Container sx={{ marginTop: '13px' }}>
+                {/* <SectionStyle> */}
+                {/* <Card> */}
+                <FormikProvider value={formik}>
+                  <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
+                    <Stack spacing={3}>
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={2}
+                      >
+                        <TextField
+                          // fullWidth
+                          label="Name"
+                          disabled
+                          {...getFieldProps('name')}
+                          error={Boolean(touched.name && errors.name)}
+                          helperText={touched.name && errors.name}
+                        />
+
+                        <TextField
+                          fullWidth
+                          disabled
+                          label="Stock Id"
+                          {...getFieldProps('stockId')}
+                          error={Boolean(touched.stockId && errors.stockId)}
+                          helperText={touched.stockId && errors.stockId}
+                        />
+                      </Stack>
+
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={2}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'flex-end',
+                            width: '50%',
+                          }}
+                        >
+                          <MonetizationOnSharpIcon
+                            sx={{ color: 'action.active', mr: 1, my: 0.5 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Amount"
+                            type="number"
+                            variant="standard"
+                            {...getFieldProps('amount')}
+                            error={Boolean(touched.amount && errors.amount)}
+                            helperText={touched.amount && errors.amount}
+                          />
+                        </Box>
+
+                        <TextField
+                          fullWidth
+                          label="Quantity"
+                          type="number"
+                          {...getFieldProps('quantity')}
+                          error={Boolean(touched.quantity && errors.quantity)}
+                          helperText={touched.quantity && errors.quantity}
+                        />
+                      </Stack>
+
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={2}
+                      >
+                        <TextField
+                          label="Payment Mode"
+                          {...getFieldProps('paymentMode')}
+                          error={Boolean(
+                            touched.paymentMode && errors.paymentMode
+                          )}
+                          helperText={touched.paymentMode && errors.paymentMode}
+                        />
+
+                        <TextField
+                          fullWidth
+                          label="Transaction Id"
+                          {...getFieldProps('transactionId')}
+                          error={Boolean(
+                            touched.transactionId && errors.transactionId
+                          )}
+                          helperText={
+                            touched.transactionId && errors.transactionId
+                          }
+                        />
+                      </Stack>
+
+                      <Divider />
+
+                      <Typography gutterBottom>Customer Details :</Typography>
+
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={2}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Name"
+                          {...getFieldProps('customerName')}
+                          error={Boolean(
+                            touched.customerName && errors.customerName
+                          )}
+                          helperText={
+                            touched.customerName && errors.customerName
+                          }
+                        />
+                        <TextField
+                          fullWidth
+                          label="Phone No"
+                          {...getFieldProps('phoneNo')}
+                          error={Boolean(touched.phoneNo && errors.phoneNo)}
+                          helperText={touched.phoneNo && errors.phoneNo}
+                        />
+                      </Stack>
+
+                      <TextField
+                        fullWidth
+                        label="Address"
+                        multiline
+                        rows={4}
+                        {...getFieldProps('address')}
+                        error={Boolean(touched.address && errors.address)}
+                        helperText={touched.address && errors.address}
+                      />
+
+                      <LoadingButton
+                        fullWidth
+                        size="large"
+                        type="submit"
+                        variant="contained"
+                        loading={isSubmitting}
+                      >
+                        Sell Stock
+                      </LoadingButton>
+                    </Stack>
+                  </Form>
+                </FormikProvider>
+                {/* </Card> */}
+                {/* </SectionStyle> */}
+              </Container>
+            </Box>
+          </Fade>
+        </Modal>
+      </RootStyle>
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        // key={'top'+'right'}
+      >
+        <Alert
+          onClose={handleSnackClose}
+          severity={snackColor}
+          sx={{ width: '100%' }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </Page>
   );
 };

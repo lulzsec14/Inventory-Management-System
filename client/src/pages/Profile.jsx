@@ -47,10 +47,10 @@ export const Profile = () => {
     // userDetails = useSelector((state) => state.user.value);
     // userDetails = JSON.parse(Cookies.get('user'));
     const USER_DETAILS = JSON.parse(Cookies.get('user'));
-    console.log(USER_DETAILS);
+    // console.log(USER_DETAILS);
     userDispatcher(addUser(USER_DETAILS));
     setIsVerified(USER_DETAILS.isVerified);
-    console.log(userDetails);
+    // console.log(userDetails);
     // setIsVerified(userDetails.isVerified);
   }, []);
 

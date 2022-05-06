@@ -13,9 +13,22 @@ import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserMoreMenu(props) {
+export default function UserMoreMenu({
+  refId,
+  refName,
+  handleModalOpen,
+  formik,
+  handleModalClose,
+  setSnackColor,
+  setSnackMessage,
+  setSnackOpen,
+}) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
 
   return (
     <>
@@ -33,20 +46,32 @@ export default function UserMoreMenu(props) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem sx={{ color: 'text.secondary' }}>
+        <MenuItem
+          onClick={() => {
+            formik.values.stockId = refId;
+            formik.values.name = refName;
+            handleModalOpen();
+            setIsOpen(false);
+          }}
+          sx={{ color: 'text.secondary' }}
+        >
           <ListItemIcon>
-            <Iconify icon="eva:trash-2-outline" width={24} height={24} />
+            <Iconify icon="ic:baseline-sell" width={24} height={24} />
           </ListItemIcon>
           <ListItemText
-            primary="Delete"
+            primary="Sell"
             primaryTypographyProps={{ variant: 'body2' }}
           />
         </MenuItem>
 
         <MenuItem
           onClick={() => {
-            console.log(props.refId);
+            console.log(refId);
+            // setCurrentStockId(refId);
+            // setCurrentStockName(refName);
             alert('Edited!');
+            // console.log(currentStockId);
+            // console.log(currentStockName);
           }}
           component={RouterLink}
           to="#"
@@ -60,6 +85,16 @@ export default function UserMoreMenu(props) {
             primaryTypographyProps={{ variant: 'body2' }}
           />
         </MenuItem>
+
+        {/* <MenuItem sx={{ color: 'text.secondary' }}>
+          <ListItemIcon>
+            <Iconify icon="eva:trash-2-outline" width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText
+            primary="Delete"
+            primaryTypographyProps={{ variant: 'body2' }}
+          />
+        </MenuItem> */}
       </Menu>
     </>
   );
