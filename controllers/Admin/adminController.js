@@ -583,13 +583,33 @@ const sellStock = async (req, res) => {
   await session.endSession();
 };
 
+const getAllStocks = async (req, res) => {
+  try {
+    const allStocks = await Stock.find().populate('category');
+
+    if (!allStocks) {
+      res
+        .status(404)
+        .json({ success: false, error: 'No stocks in current inventory!' });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: 'Current stocks fetched successfully!',
+      data: allStocks,
+    });
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 const getStockByCategory = async (req, res) => {
-  console.log(req.cookies);
   try {
     let finalRes = {};
     let refMap = {};
 
-    const allCat = await Category.find();
+    const allCat = await Category.find().populate('category');
 
     // console.log(allCat);
 
@@ -650,6 +670,26 @@ const getPurchasedStocks = async (req, res) => {
   }
 };
 
+const getAllPurchasedStock = async (req, res) => {
+  try {
+    const allStocks = await PurchasedStocks.find().populate('category');
+    if (!allStocks) {
+      res
+        .status(404)
+        .json({ success: false, error: 'No stocks in current inventory!' });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: 'Purchased Stocks fetched successfully!',
+      data: allStocks,
+    });
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 const getSoldStocks = async (req, res) => {
   try {
     const categories = await getCatergoriesObject();
@@ -668,6 +708,26 @@ const getSoldStocks = async (req, res) => {
       success: true,
       message: 'All sold stocks fetched successfully!',
       data: returnObj,
+    });
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+const getAllSoldStocks = async (req, res) => {
+  try {
+    const allStocks = await SoldStocks.find().populate('category');
+    if (!allStocks) {
+      res
+        .status(404)
+        .json({ success: false, error: 'No stocks in current inventory!' });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: 'Sold Stocks fetched successfully!',
+      data: allStocks,
     });
   } catch (err) {
     log.info(err);
@@ -839,4 +899,7 @@ module.exports = {
   updateAdminDetails,
   forgotPassword,
   resetPassword,
+  getAllStocks,
+  getAllPurchasedStock,
+  getAllSoldStocks,
 };
