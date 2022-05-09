@@ -28,7 +28,7 @@ import SearchNotFound from '../components/SearchNotFound';
 import {
   StockListHead,
   StockListToolbar,
-  StockMoreMenu,
+  // StockMoreMenu,
 } from '../sections/dashboard/stock';
 // mock
 import USERLIST from '../_mock/user';

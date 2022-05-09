@@ -609,7 +609,7 @@ const getStockByCategory = async (req, res) => {
     let finalRes = {};
     let refMap = {};
 
-    const allCat = await Category.find().populate('category');
+    const allCat = await Category.find();
 
     // console.log(allCat);
 

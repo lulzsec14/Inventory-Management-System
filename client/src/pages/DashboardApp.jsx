@@ -18,6 +18,9 @@ export const DashboardApp = () => {
   };
 
   const [currentStocks, setCurrentStocks] = useState(0);
+  const [purchasedStocks, setPurchasedStocks] = useState(0);
+  const [soldStocks, setSoldStocks] = useState(0);
+  const [profits, setProfits] = useState(0);
 
   // SnackBar
   const [snackOpen, setSnackOpen] = useState(false);
@@ -28,7 +31,11 @@ export const DashboardApp = () => {
 
   const [stockData, setStockData] = useState([]);
 
+  const [pieData, setPieData] = useState([])
+
   const [dataChange, setDataChange] = useState(false);
+
+  const [loadingData, setLoadingData] = useState(false);
 
   const handleSnackClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -42,6 +49,8 @@ export const DashboardApp = () => {
 
   useEffect(() => {
     const fetchDetails = async () => {
+      setLoadingData(true);
+
       try {
         const { data } = await axios.get(
           `http://localhost:5000/api/admin/getAllStocks`,
@@ -59,14 +68,96 @@ export const DashboardApp = () => {
 
     const fetchPurchasedStocks = async () => {
       try {
-        const {data} = await axios.get(`http://localhost:5000/api/admin/getAllStocks`, options)
-        
+        const { data } = await axios.get(
+          `http://localhost:5000/api/admin/getAllPurchasedStocks`,
+          options
+        );
+
+        setPurchasedStocks(data.data.length);
       } catch (err) {
-        
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
       }
-    }
+    };
+
+    const fetchSoldStocks = async () => {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/admin/getAllSoldStocks`,
+          options
+        );
+
+        setSoldStocks(data.data.length);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+    };
+
+    const fetchProfitMade = async () => {
+      try {
+        const soldDetails = await axios.get(
+          `http://localhost:5000/api/admin/getAllSoldStocks`,
+          options
+        );
+
+        const purchasedDetails = await axios.get(
+          `http://localhost:5000/api/admin/getAllPurchasedStocks`,
+          options
+        );
+
+        let boughtAmount = 0;
+        let sellAmount = 0;
+
+        let boughtArray = purchasedDetails.data.data;
+        let soldArray = soldDetails.data.data;
+
+        boughtArray.forEach((element, index) => {
+          boughtAmount += element.amount;
+        });
+
+        soldArray.forEach((element, index) => {
+          sellAmount += element.amount;
+        });
+
+        const finalProfit = Math.abs(boughtAmount - sellAmount);
+
+        setProfits(finalProfit);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage('Couldnt fetch data!');
+        setSnackOpen(true);
+      }
+      setLoadingData(false);
+    };
+
+    const fetchPieData = async () => {
+      try {
+        const responseData = await axios.get(
+          `http://localhost:5000/api/admin/getAllPurchasedStocks`,
+          options
+        );
+
+        const mainData = responseData.data.data.mainData;
+
+        let result = []
+
+
+
+      } catch (err) {}
+    };
+
+    // setLoadingData(true);
 
     fetchDetails().then();
+    fetchPurchasedStocks().then();
+    fetchSoldStocks().then();
+
+    fetchProfitMade().then();
+
+    // setLoadingData(false);
   }, []);
 
   return (
@@ -83,33 +174,37 @@ export const DashboardApp = () => {
               total={currentStocks}
               color="success"
               icon={'fa6-solid:box'}
+              loadingData={loadingData}
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Stocks Purchased"
-              total={1352831}
+              total={purchasedStocks}
               color="secondary"
               icon={'eva:shopping-cart-fill'}
+              loadingData={loadingData}
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Stocks Sold"
-              total={1723315}
+              total={soldStocks}
               color="secondary"
               icon={'fa6-solid:truck-ramp-box'}
+              loadingData={loadingData}
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary
-              title="Profit Made"
-              total={234}
+              title="Profits Made"
+              total={profits}
               color="warning"
               icon={'healthicons:money-bag'}
+              loadingData={loadingData}
             />
           </Grid>
 

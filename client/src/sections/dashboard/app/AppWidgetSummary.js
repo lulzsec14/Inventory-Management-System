@@ -1,7 +1,7 @@
 // @mui
 import PropTypes from 'prop-types';
 import { alpha, styled } from '@mui/material/styles';
-import { Card, Typography } from '@mui/material';
+import { Card, Typography, CircularProgress, Fade } from '@mui/material';
 // utils
 import { fShortenNumber } from '../../../utils/formatNumber';
 // components
@@ -36,6 +36,7 @@ export default function AppWidgetSummary({
   icon,
   color = 'primary',
   sx,
+  loadingData,
   ...other
 }) {
   return (
@@ -63,7 +64,19 @@ export default function AppWidgetSummary({
         <Iconify icon={icon} width={24} height={24} />
       </IconWrapperStyle>
 
-      <Typography variant="h3">{fShortenNumber(total)}</Typography>
+      {loadingData ? (
+        <Fade
+          in={loadingData}
+          style={{
+            transitionDelay: loadingData ? '800ms' : '0ms',
+          }}
+          unmountOnExit
+        >
+          <CircularProgress />
+        </Fade>
+      ) : (
+        <Typography variant="h3">{fShortenNumber(total)}</Typography>
+      )}
 
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
         {title}
