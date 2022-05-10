@@ -22,7 +22,7 @@ function App() {
     <ThemeProvider>
       <ScrollToTop />
       <Routes>
-        <Route exact path="/" element={<Navigat to="/login" />}>
+        <Route exact path="/" element={<Home />}>
           <Route exact path="login" element={<Login />} />
           <Route exact path="register" element={<Register />} />
         </Route>

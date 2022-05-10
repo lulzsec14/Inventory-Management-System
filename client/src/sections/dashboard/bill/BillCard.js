@@ -114,7 +114,7 @@ export default function BillCard({ post, index }) {
           />
           <AvatarStyle
             alt={name}
-            src={`/static/mock-images/avatars/avatar_${index + 1}.jpg`}
+            src={`/static/mock-images/avatars/avatar_1.jpg`}
           />
 
           <CoverImgStyle

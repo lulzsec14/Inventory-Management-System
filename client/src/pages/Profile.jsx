@@ -130,6 +130,7 @@ export const Profile = () => {
 
         userDispatcher(addUser(response.data.data));
         Cookies.set('user', JSON.stringify(response.data.data), { expires: 1 });
+        setIsEdit(false);
 
         setDetailsChanged((prev) => !prev);
 
@@ -318,7 +319,7 @@ export const Profile = () => {
                       >
                         <TextField
                           fullWidth
-                          disabled={isEdit}
+                          disabled={!isEdit}
                           label="Full name"
                           {...getFieldProps('fullName')}
                           error={Boolean(touched.fullName && errors.fullName)}
@@ -327,7 +328,7 @@ export const Profile = () => {
 
                         <TextField
                           fullWidth
-                          disabled={isEdit}
+                          disabled={!isEdit}
                           label="Phone No"
                           {...getFieldProps('phoneNo')}
                           error={Boolean(touched.phoneNo && errors.phoneNo)}
