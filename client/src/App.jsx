@@ -22,13 +22,13 @@ function App() {
     <ThemeProvider>
       <ScrollToTop />
       <Routes>
-        <Route exact path="/" element={<Home />}>
+        <Route exact path="/" element={<Navigat to="/login" />}>
           <Route exact path="login" element={<Login />} />
           <Route exact path="register" element={<Register />} />
         </Route>
         <Route element={<Protected />}>
           <Route exact path="/dashboard" element={<DashboardLayout />}>
-            <Route exact index path="app" element={<DashboardApp />} />
+            <Route exact path="app" element={<DashboardApp />} />
             <Route exact path="stocks" element={<Stocks />} />
             <Route exact path="createstock" element={<CreateStock />} />
             <Route exact path="purchasedstocks" element={<PurchasedStocks />} />

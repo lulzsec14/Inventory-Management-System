@@ -86,7 +86,7 @@ export default function LoginForm({
         setSnackMessage(data.message);
         setSnackOpen(true);
         await sleep(3000);
-        navigate('/dashboard', { replace: true });
+        navigate('/dashboard/app', { replace: true });
       } catch (err) {
         setSnackColor('error');
         setSnackMessage(err?.response?.data?.error);
