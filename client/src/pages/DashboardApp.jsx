@@ -3,7 +3,17 @@ import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography, Snackbar, Alert } from '@mui/material';
+import {
+  Grid,
+  Container,
+  Typography,
+  Snackbar,
+  Alert,
+  Skeleton,
+  Stack,
+  Box,
+  Fade,
+} from '@mui/material';
 import { AppWidgetSummary } from '../sections/dashboard/app';
 import { AppTotalSales } from '../sections/dashboard/app';
 import CategorySales from '../sections/dashboard/app/CategorySales';
@@ -15,6 +25,13 @@ export const DashboardApp = () => {
   const options = {
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,
+  };
+
+  let currDate = new Date();
+  currDate = currDate.getFullYear();
+
+  const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
   };
 
   const [currentStocks, setCurrentStocks] = useState(0);
@@ -31,11 +48,15 @@ export const DashboardApp = () => {
 
   const [stockData, setStockData] = useState([]);
 
-  const [pieData, setPieData] = useState([])
+  const [pieData, setPieData] = useState([]);
 
   const [dataChange, setDataChange] = useState(false);
 
-  const [loadingData, setLoadingData] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+
+  const [purchasedData, setPurchasedData] = useState([]);
+
+  const [soldData, setSoldData] = useState([]);
 
   const handleSnackClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -108,11 +129,33 @@ export const DashboardApp = () => {
           options
         );
 
-        let boughtAmount = 0;
-        let sellAmount = 0;
-
         let boughtArray = purchasedDetails.data.data;
         let soldArray = soldDetails.data.data;
+
+        // Data Chart
+
+        let purchasedDataMonths = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let soldDataMonths = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        soldArray.forEach((ele, index) => {
+          let soldDate = new Date(ele.dateSold);
+          let soldMonth = soldDate.getMonth();
+          soldDataMonths[soldMonth]++;
+        });
+
+        setSoldData(soldDataMonths);
+
+        boughtArray.forEach((ele, index) => {
+          let purchasedDate = new Date(ele.datePurchased);
+          let purchasedMonth = purchasedDate.getMonth();
+          purchasedDataMonths[purchasedMonth]++;
+        });
+
+        setPurchasedData(purchasedDataMonths);
+        // --------------------------------------
+
+        let boughtAmount = 0;
+        let sellAmount = 0;
 
         boughtArray.forEach((element, index) => {
           boughtAmount += element.amount;
@@ -130,35 +173,46 @@ export const DashboardApp = () => {
         setSnackMessage('Couldnt fetch data!');
         setSnackOpen(true);
       }
-      setLoadingData(false);
     };
 
     const fetchPieData = async () => {
       try {
         const responseData = await axios.get(
-          `http://localhost:5000/api/admin/getAllPurchasedStocks`,
+          `http://localhost:5000/api/admin/getStockByCategory`,
           options
         );
 
         const mainData = responseData.data.data.mainData;
+        let result = [];
 
-        let result = []
+        const cats = Object.keys(mainData);
 
+        cats.forEach((ele, index) => {
+          let temp = {};
+          temp.label = ele;
+          temp.value = mainData[ele].length;
+          result.push(temp);
+        });
+        setPieData(result);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage('Couldnt fetch data!');
+        setSnackOpen(true);
+      }
+      await sleep(2000);
 
-
-      } catch (err) {}
+      setLoadingData(false);
     };
-
-    // setLoadingData(true);
 
     fetchDetails().then();
     fetchPurchasedStocks().then();
     fetchSoldStocks().then();
 
     fetchProfitMade().then();
-
-    // setLoadingData(false);
+    fetchPieData().then();
   }, []);
+
+  // console.log(purchasedData);
 
   return (
     <Page title="Dashboard">
@@ -167,99 +221,164 @@ export const DashboardApp = () => {
           Hi, Welcome back
         </Typography>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary
+        {loadingData ? (
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} md={3}>
+              {/* <AppWidgetSummary
               title="Stocks Available"
               total={currentStocks}
               color="success"
               icon={'fa6-solid:box'}
               loadingData={loadingData}
-            />
-          </Grid>
+            /> */}
+              <Skeleton
+                sx={{ bgcolor: 'grey', borderRadius: '16px' }}
+                width={354}
+                height={238}
+                variant="rectangular"
+              />
+            </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary
-              title="Stocks Purchased"
-              total={purchasedStocks}
-              color="secondary"
-              icon={'eva:shopping-cart-fill'}
-              loadingData={loadingData}
-            />
-          </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Skeleton
+                sx={{ bgcolor: 'grey', borderRadius: '16px' }}
+                width={354}
+                height={238}
+                variant="rectangular"
+              />
+            </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary
-              title="Stocks Sold"
-              total={soldStocks}
-              color="secondary"
-              icon={'fa6-solid:truck-ramp-box'}
-              loadingData={loadingData}
-            />
-          </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Skeleton
+                sx={{ bgcolor: 'grey', borderRadius: '16px' }}
+                width={354}
+                height={238}
+                variant="rectangular"
+              />
+            </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary
-              title="Profits Made"
-              total={profits}
-              color="warning"
-              icon={'healthicons:money-bag'}
-              loadingData={loadingData}
-            />
-          </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Skeleton
+                sx={{ bgcolor: 'grey', borderRadius: '16px' }}
+                width={354}
+                height={238}
+                variant="rectangular"
+              />
+            </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
-            <AppTotalSales
-              title="Total Sales"
-              subheader="(+43%) than last year"
-              chartLabels={[
-                '01/01/2021',
-                '02/01/2021',
-                '03/01/2021',
-                '04/01/2021',
-                '05/01/2021',
-                '06/01/2021',
-                '07/01/2021',
-                '08/01/2021',
-                '09/01/2021',
-                '10/01/2021',
-                '11/01/2021',
-              ]}
-              chartData={[
-                {
-                  name: 'Stocks Purchased',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: 'Stocks Sold',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-              ]}
-            />
-          </Grid>
+            <Grid item xs={12} md={6} lg={8}>
+              <Skeleton
+                sx={{ bgcolor: 'grey', borderRadius: '16px' }}
+                width={980}
+                height={509}
+                variant="rectangular"
+              />
+            </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
-            <CategorySales
-              title="Categorie wise sales"
-              chartData={[
-                { label: 'Gym', value: 4344 },
-                { label: 'Electronics', value: 5435 },
-                { label: 'Clothing', value: 1443 },
-                { label: 'Health', value: 4443 },
-              ]}
-              chartColors={[
-                theme.palette.primary.main,
-                theme.palette.chart.blue[0],
-                theme.palette.chart.violet[0],
-                theme.palette.chart.yellow[0],
-              ]}
-            />
+            <Grid item xs={12} md={6} lg={4}>
+              <Skeleton
+                sx={{ bgcolor: 'grey', borderRadius: '16px' }}
+                width={480}
+                height={509}
+                variant="rectangular"
+              />
+            </Grid>
           </Grid>
-        </Grid>
+        ) : (
+          <Fade in={!loadingData}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={3}>
+                <AppWidgetSummary
+                  title="Stocks Available"
+                  total={currentStocks}
+                  color="success"
+                  icon={'fa6-solid:box'}
+                  loadingData={loadingData}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <AppWidgetSummary
+                  title="Stocks Purchased"
+                  total={purchasedStocks}
+                  color="secondary"
+                  icon={'eva:shopping-cart-fill'}
+                  loadingData={loadingData}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <AppWidgetSummary
+                  title="Stocks Sold"
+                  total={soldStocks}
+                  color="secondary"
+                  icon={'fa6-solid:truck-ramp-box'}
+                  loadingData={loadingData}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <AppWidgetSummary
+                  title="Profits Made"
+                  total={profits}
+                  color="warning"
+                  icon={'healthicons:money-bag'}
+                  loadingData={loadingData}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} lg={8}>
+                <AppTotalSales
+                  title="Total Sales"
+                  subheader="(+43%) than last year"
+                  chartLabels={[
+                    `01/01/${currDate}`,
+                    `02/01/${currDate}`,
+                    `03/01/${currDate}`,
+                    `04/01/${currDate}`,
+                    `05/01/${currDate}`,
+                    `06/01/${currDate}`,
+                    `07/01/${currDate}`,
+                    `08/01/${currDate}`,
+                    `09/01/${currDate}`,
+                    `10/01/${currDate}`,
+                    `11/01/${currDate}`,
+                    `12/01/${currDate}`,
+                  ]}
+                  chartData={[
+                    {
+                      name: 'Stocks Purchased',
+                      type: 'area',
+                      fill: 'gradient',
+                      // data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 25],
+                      data: purchasedData,
+                    },
+                    {
+                      name: 'Stocks Sold',
+                      type: 'area',
+                      fill: 'gradient',
+                      // data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43, 21],
+                      data: soldData,
+                    },
+                  ]}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} lg={4}>
+                <CategorySales
+                  title="Categorie wise sales"
+                  chartData={pieData}
+                  chartColors={[
+                    theme.palette.primary.main,
+                    theme.palette.chart.blue[0],
+                    theme.palette.chart.violet[0],
+                    theme.palette.chart.yellow[0],
+                  ]}
+                />
+              </Grid>
+            </Grid>
+          </Fade>
+        )}
       </Container>
 
       <Snackbar

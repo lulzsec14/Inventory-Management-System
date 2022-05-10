@@ -20,6 +20,8 @@ const {
   getAllStocks,
   getAllPurchasedStock,
   getAllSoldStocks,
+  updatePassword,
+  getAdminDetails,
 } = require('../controllers/Admin/adminController');
 const { checkAdmin } = require('../middlewares/adminAuth');
 const adminRouter = express.Router();
@@ -32,6 +34,10 @@ adminRouter.route('/forgotPassword').post(checkAdmin, forgotPassword);
 adminRouter.route('/passwordReset/:resetToken').put(checkAdmin, resetPassword);
 adminRouter.route('/updateAdminDetails').put(checkAdmin, updateAdminDetails);
 adminRouter.route('/getEmailVerification').get(checkAdmin, verifyEmail);
+adminRouter.route('/updateAdminPassword').put(checkAdmin, updatePassword);
+
+adminRouter.route('/getAdminDetails/:email').get(checkAdmin, getAdminDetails);
+
 adminRouter.route('/createNewStock').post(checkAdmin, addNewStock);
 adminRouter.route('/createCategory').post(checkAdmin, createNewCategory);
 adminRouter.route('/updateStockDetails').put(checkAdmin, updateStock);

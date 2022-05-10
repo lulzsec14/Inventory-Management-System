@@ -61,7 +61,7 @@ export default function LoginForm({
     },
     validationSchema: LoginSchema,
     onSubmit: async (values) => {
-      authDispatcher(addAuth(true));
+      // authDispatcher(addAuth(true));
 
       try {
         const { data } = await axios.post(
@@ -75,19 +75,12 @@ export default function LoginForm({
           options
         );
 
-        // console.log(data.adminDetails);
         authDispatcher(addAuth(true));
 
         userDispatcher(addUser(data.adminDetails));
 
-        // console.log(tempUserDetails);
-
         Cookies.set('user', JSON.stringify(data.adminDetails), { expires: 1 });
         Cookies.set('auth', JSON.stringify({ isAuth: true }), { expires: 1 });
-
-        // const temp = Cookies.get('user');
-
-        // console.log(JSON.parse(temp));
 
         setSnackColor('success');
         setSnackMessage(data.message);
@@ -99,9 +92,6 @@ export default function LoginForm({
         setSnackMessage(err?.response?.data?.error);
         setSnackOpen(true);
       }
-
-      // alert(JSON.stringify(values, null, 2));
-      // navigate('/dashboard', { replace: true });
     },
   });
 

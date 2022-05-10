@@ -15,7 +15,8 @@ import {
   TextField,
   IconButton,
   InputAdornment,
-  Chip,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -30,8 +31,15 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { LoadingButton } from '@mui/lab';
 import Label from '../components/Label';
+import axios from 'axios';
 
 export const Profile = () => {
+  const options = {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+    credentials: 'include',
+  };
+
   const [isVerified, setIsVerified] = useState(true);
   const user = {
     name: 'Sourav',
@@ -43,40 +51,129 @@ export const Profile = () => {
   const userDetails = useSelector((state) => state.user.value);
   const userDispatcher = useDispatch();
 
-  useEffect(() => {
-    // userDetails = useSelector((state) => state.user.value);
-    // userDetails = JSON.parse(Cookies.get('user'));
-    const USER_DETAILS = JSON.parse(Cookies.get('user'));
-    // console.log(USER_DETAILS);
-    userDispatcher(addUser(USER_DETAILS));
-    setIsVerified(USER_DETAILS.isVerified);
-    // console.log(userDetails);
-    // setIsVerified(userDetails.isVerified);
-  }, []);
-
-  const [isEdit, setIsEdit] = useState(true);
-
-  const [disableEmail, setDisableEmail] = useState(true);
+  const [isEdit, setIsEdit] = useState(false);
 
   const navigate = useNavigate();
 
   const UserDetails = Yup.object().shape({
     fullName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!'),
+    // .required('Aivin'),
     phoneNo: Yup.string().min(8, 'Too Short!').max(12, 'Too Long!'),
   });
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState(false);
+
+  const [newPassword, setNewPassword] = useState(false);
+
+  const [detailsChanged, setDetailsChanged] = useState(false);
+
+  // SnackBar
+
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(
+    'Adminn Logged In successfully!'
+  );
+  const [snackColor, setSnackColor] = useState('success');
+
+  const handleSnackClick = () => {
+    setSnackOpen(true);
+  };
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackOpen(false);
+  };
+
+  // ----------------------------------
+
+  const UserPassword = Yup.object().shape({
+    oldPassword: Yup.string()
+      .min(8, 'Password cant be less than 8 chars!')
+      .required('Old Password is required!'),
+    newPassword: Yup.string()
+      .min(8, 'Password cant be less than 8 chars!')
+      .required('New Password is required!')
+      .matches(
+        /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/,
+        'Password must contain at least 8 characters, one uppercase, one number and one special case character'
+      ),
+  });
 
   const formik = useFormik({
     initialValues: {
-      fullName: userDetails.name,
-      phoneNo: userDetails.phoneNo,
-      email: userDetails.email,
-      password: '',
+      fullName: userDetails.name || ' ',
+      phoneNo: userDetails.phoneNo || ' ',
+      email: userDetails.email || ' ',
     },
     validationSchema: UserDetails,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values));
+    onSubmit: async (values) => {
+      // alert(JSON.stringify(values, null, 2));
+
+      try {
+        const response = await axios.put(
+          `http://localhost:5000/api/admin/updateAdminDetails`,
+          {
+            data: {
+              email: values.email,
+              dataToUpdate: {
+                name: values.fullName,
+                phoneNo: values.phoneNo,
+              },
+            },
+          },
+          options
+        );
+
+        Cookies.remove('user');
+
+        userDispatcher(addUser(response.data.data));
+        Cookies.set('user', JSON.stringify(response.data.data), { expires: 1 });
+
+        setDetailsChanged((prev) => !prev);
+
+        setSnackColor('success');
+        setSnackMessage(response.data.message);
+        setSnackOpen(true);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+    },
+  });
+
+  const passwordForm = useFormik({
+    initialValues: {
+      oldPassword: '',
+      newPassword: '',
+    },
+    validationSchema: UserPassword,
+    onSubmit: async (values) => {
+      alert(JSON.stringify(values, null, 2));
+
+      try {
+        const response = await axios.put(
+          'http://localhost:5000/api/admin/updateAdminPassword',
+          {
+            data: {
+              email: formik.values.email,
+              oldPassword: values.oldPassword,
+              newPassword: values.newPassword,
+            },
+          },
+          options
+        );
+
+        setSnackColor('success');
+        setSnackMessage('Password updated successfully!');
+        setSnackOpen(true);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
     },
   });
 
@@ -85,6 +182,46 @@ export const Profile = () => {
   };
 
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
+
+  const passwordErrors = passwordForm.errors;
+  const passwordTouched = passwordForm.touched;
+  const passwordHandleSubmit = passwordForm.handleSubmit;
+  const passwordIsSubmitting = passwordForm.isSubmitting;
+  const passwordGetFieldProps = passwordForm.getFieldProps;
+
+  useEffect(() => {
+    const USER_DETAILS = JSON.parse(Cookies.get('user'));
+    console.log(USER_DETAILS);
+    formik.values.fullName = USER_DETAILS.name;
+    formik.values.phoneNo = USER_DETAILS.phoneNo;
+    formik.values.email = USER_DETAILS.email;
+    userDispatcher(addUser(USER_DETAILS));
+    setIsVerified(USER_DETAILS.isVerified);
+  }, []);
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/admin/getAdminDetails/${formik.values.email}`,
+          options
+        );
+
+        console.log(data);
+
+        userDispatcher(addUser(data.data));
+
+        Cookies.remove('user');
+        Cookies.set('user', JSON.stringify(data.data), { expires: 1 });
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage('Couldnt fetch user details');
+        setSnackOpen(true);
+      }
+    };
+
+    fetchUserDetails().then();
+  }, [detailsChanged]);
 
   return (
     <Page title="Dashboard: Profile">
@@ -119,7 +256,6 @@ export const Profile = () => {
                     flexDirection: 'column',
                   }}
                 >
-                  {/* { */}
                   <Avatar
                     src={user.avatar}
                     sx={{
@@ -182,6 +318,7 @@ export const Profile = () => {
                       >
                         <TextField
                           fullWidth
+                          disabled={isEdit}
                           label="Full name"
                           {...getFieldProps('fullName')}
                           error={Boolean(touched.fullName && errors.fullName)}
@@ -190,6 +327,7 @@ export const Profile = () => {
 
                         <TextField
                           fullWidth
+                          disabled={isEdit}
                           label="Phone No"
                           {...getFieldProps('phoneNo')}
                           error={Boolean(touched.phoneNo && errors.phoneNo)}
@@ -199,35 +337,55 @@ export const Profile = () => {
 
                       <TextField
                         fullWidth
-                        disabled={isEdit}
-                        autoComplete="username"
+                        disabled
                         type="email"
                         label="Email address"
                         {...getFieldProps('email')}
-                        error={Boolean(touched.email && errors.email)}
-                        helperText={touched.email && errors.email}
                       />
 
+                      <LoadingButton
+                        fullWidth
+                        size="large"
+                        type="submit"
+                        variant="contained"
+                        loading={isSubmitting}
+                      >
+                        Save Details
+                      </LoadingButton>
+
                       <Divider />
+                    </Stack>
+                  </Form>
+                </FormikProvider>
+              </Grid>
 
-                      <Typography>Change Password :</Typography>
-
+              <Grid item xs={12} padding={2}>
+                <Typography sx={{ marginBottom: 2 }}>
+                  Change Password :
+                </Typography>
+                <FormikProvider value={passwordForm}>
+                  <Form
+                    autoComplete="off"
+                    noValidate
+                    onSubmit={passwordHandleSubmit}
+                  >
+                    <Stack spacing={3}>
                       <TextField
                         fullWidth
                         autoComplete="current-password"
-                        type={showPassword ? 'text' : 'password'}
-                        label="Password"
-                        {...getFieldProps('password')}
+                        type={oldPassword ? 'text' : 'password'}
+                        label="Old Password"
+                        {...passwordGetFieldProps('oldPassword')}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
                               <IconButton
                                 edge="end"
-                                onClick={() => setShowPassword((prev) => !prev)}
+                                onClick={() => setOldPassword((prev) => !prev)}
                               >
                                 <Iconify
                                   icon={
-                                    showPassword
+                                    oldPassword
                                       ? 'eva:eye-fill'
                                       : 'eva:eye-off-fill'
                                   }
@@ -236,19 +394,59 @@ export const Profile = () => {
                             </InputAdornment>
                           ),
                         }}
-                        error={Boolean(touched.password && errors.password)}
-                        helperText={touched.password && errors.password}
+                        error={Boolean(
+                          passwordTouched.oldPassword &&
+                            passwordErrors.oldPassword
+                        )}
+                        helperText={
+                          passwordTouched.oldPassword &&
+                          passwordErrors.oldPassword
+                        }
                       />
 
-                      {/* <LoadingButton
-                      fullWidth
-                      size="large"
-                      type="submit"
-                      variant="contained"
-                      loading={isSubmitting}
-                    >
-                      Register
-                    </LoadingButton> */}
+                      <TextField
+                        fullWidth
+                        autoComplete="current-password"
+                        type={newPassword ? 'text' : 'password'}
+                        label="New Password"
+                        {...passwordGetFieldProps('newPassword')}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                edge="end"
+                                onClick={() => setNewPassword((prev) => !prev)}
+                              >
+                                <Iconify
+                                  icon={
+                                    newPassword
+                                      ? 'eva:eye-fill'
+                                      : 'eva:eye-off-fill'
+                                  }
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                        error={Boolean(
+                          passwordTouched.newPassword &&
+                            passwordErrors.newPassword
+                        )}
+                        helperText={
+                          passwordTouched.newPassword &&
+                          passwordErrors.newPassword
+                        }
+                      />
+
+                      <LoadingButton
+                        fullWidth
+                        size="large"
+                        type="submit"
+                        variant="contained"
+                        loading={passwordIsSubmitting}
+                      >
+                        Change Password!
+                      </LoadingButton>
                     </Stack>
                   </Form>
                 </FormikProvider>
@@ -257,6 +455,20 @@ export const Profile = () => {
           </Grid>
         </Grid>
       </Container>
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleSnackClose}
+          severity={snackColor}
+          sx={{ width: '100%' }}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </Page>
   );
 };

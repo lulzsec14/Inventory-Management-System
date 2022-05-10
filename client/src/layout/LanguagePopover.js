@@ -10,7 +10,7 @@ import MenuPopover from '../components/MenuPopover';
 const LANGS = [
   {
     value: 'in',
-    label: 'Indian',
+    label: 'English',
     icon: '/static/icons/ic_flag_en.svg',
   },
   {

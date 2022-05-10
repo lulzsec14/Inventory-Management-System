@@ -150,6 +150,30 @@ const loginAdmin = async (req, res) => {
   }
 };
 
+const getAdminDetails = async (req, res) => {
+  const { email } = req.params;
+  try {
+    const findAdmin = await Admin.findOne({ email });
+
+    const result = {
+      name: findAdmin.name,
+      email: findAdmin.email,
+      phoneNo: findAdmin.phoneNo,
+      isVerified: findAdmin.isVerified,
+      id: findAdmin._id,
+    };
+
+    res.status(200).json({
+      success: true,
+      message: 'Admin details fetched successfully!',
+      data: result,
+    });
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 const logoutAdmin = async (req, res) => {
   try {
     req.session.destroy((e) => {
@@ -267,6 +291,13 @@ const updateAdminDetails = async (req, res) => {
   const { dataToUpdate, email } = req.body.data;
 
   try {
+    if (dataToUpdate.email || dataToUpdate.password) {
+      res
+        .status(400)
+        .json({ success: false, error: 'Email can not be changed!' });
+      return;
+    }
+
     const findAdmin = await Admin.findOne({ email });
 
     if (!findAdmin) {
@@ -278,10 +309,18 @@ const updateAdminDetails = async (req, res) => {
         { new: true }
       );
 
+      const result = {
+        name: updatedAdmin.name,
+        email: updatedAdmin.email,
+        phoneNo: updatedAdmin.phoneNo,
+        isVerified: updatedAdmin.isVerified,
+        id: updatedAdmin._id,
+      };
+
       res.status(201).json({
         success: true,
         message: 'Admin details updated successfully!',
-        data: updatedAdmin,
+        data: result,
       });
     }
   } catch (err) {
@@ -881,6 +920,48 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const updatePassword = async (req, res) => {
+  const { email, oldPassword, newPassword } = req.body.data;
+  try {
+    const findAdmin = await Admin.findOne({ email });
+    if (!findAdmin) {
+      res
+        .status(404)
+        .json({ success: false, error: 'No admin with given email exists!' });
+      return;
+    }
+
+    const matchPassword = comparePasswords(oldPassword, findAdmin.password);
+
+    if (!matchPassword) {
+      res.status(400).json({
+        success: false,
+        error: 'Wrong old password entered!',
+      });
+      return;
+    }
+
+    const hashedNewPassword = textToHash(newPassword);
+
+    const updatedPassword = await Admin.findOneAndUpdate(
+      { email },
+      {
+        $set: {
+          password: hashedNewPassword,
+        },
+      },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({ success: true, message: 'Password updated successfully!' });
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -902,4 +983,6 @@ module.exports = {
   getAllStocks,
   getAllPurchasedStock,
   getAllSoldStocks,
+  updatePassword,
+  getAdminDetails,
 };
