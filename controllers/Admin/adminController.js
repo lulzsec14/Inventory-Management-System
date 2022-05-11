@@ -962,6 +962,31 @@ const updatePassword = async (req, res) => {
   }
 };
 
+const getAllCats = async (req, res, next) => {
+  try {
+    const findCats = await Category.find();
+    // const allCat = await Category.find();
+
+    if (!findCats) {
+      console.log('here');
+      res.status(200).json({
+        success: true,
+        message: 'No category exists!',
+        data: [],
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: 'Categories fetched successfully!',
+        data: findCats,
+      });
+    }
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -985,4 +1010,5 @@ module.exports = {
   getAllSoldStocks,
   updatePassword,
   getAdminDetails,
+  getAllCats,
 };

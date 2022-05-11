@@ -137,9 +137,7 @@ export const PurchasedStocks = () => {
           temp.quantity = element.quantity;
           temp.seller = element.seller.name;
           temp.category = element.category.name;
-          temp.avatarUrl = `/static/mock-images/avatars/avatar_${
-            (index + 1) % 25
-          }.jpg`;
+          temp.avatarUrl = `/static/mock-images/avatars/box.png`;
 
           finalData.push(temp);
         });

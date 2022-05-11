@@ -16,6 +16,7 @@ import ThemeProvider from './theme';
 import { Protected } from './components/Protected/Protected';
 import { PurchasedStocks } from './pages/PurchasedStocks';
 import { CreateStock } from './pages/CreateStock';
+import { CreateCats } from './pages/CreateCats';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route exact path="app" element={<DashboardApp />} />
             <Route exact path="stocks" element={<Stocks />} />
             <Route exact path="createstock" element={<CreateStock />} />
+            <Route exact path="createCategory" element={<CreateCats />} />
             <Route exact path="purchasedstocks" element={<PurchasedStocks />} />
             <Route exact path="soldstocks" element={<SoldStocks />} />
             <Route exact path="receipts" element={<Receipt />} />

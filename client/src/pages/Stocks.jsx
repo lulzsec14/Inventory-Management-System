@@ -31,8 +31,6 @@ import {
   Fade,
   Box,
   TextField,
-  InputAdornment,
-  IconButton,
   Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -47,9 +45,7 @@ import {
   StockMoreMenu,
 } from '../sections/dashboard/stock';
 // mock
-import USERLIST from '../_mock/user';
 import axios from 'axios';
-import { ModalForm } from '../sections/dashboard/stock/ModalForm';
 
 // ----------------------------------------------------------------------
 
@@ -302,9 +298,7 @@ export const Stocks = () => {
           temp.quantity = element.quantity;
           temp.seller = element.seller.name;
           temp.category = element.category.name;
-          temp.avatarUrl = `/static/mock-images/avatars/avatar_${
-            (index + 1) % 25
-          }.jpg`;
+          temp.avatarUrl = `/static/mock-images/avatars/box.png`;
 
           finalData.push(temp);
         });
@@ -397,14 +391,27 @@ export const Stocks = () => {
           <Typography variant="h4" gutterBottom>
             Stocks
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="/dashboard/createstock"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
-            Add Stock
-          </Button>
+
+          {/* <Box> */}
+          <Stack spacing={2} direction="row">
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to="/dashboard/createstock"
+              startIcon={<Iconify icon="eva:plus-fill" />}
+            >
+              Add Stock
+            </Button>
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to="/dashboard/createCategory"
+              startIcon={<Iconify icon="eva:plus-fill" />}
+            >
+              Add Category
+            </Button>
+          </Stack>
+          {/* </Box> */}
         </Stack>
 
         <Card>

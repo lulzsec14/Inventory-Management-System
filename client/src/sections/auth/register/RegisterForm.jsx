@@ -36,6 +36,7 @@ export const RegisterForm = ({
     phoneNo: Yup.string()
       .min(8, 'Too Short!')
       .max(12, 'Too Long!')
+      .matches(/^[0-9]+$/, 'Must be only digits')
       .required('Phone No required'),
     email: Yup.string()
       .email('Email must be a valid email address')

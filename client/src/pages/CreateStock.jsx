@@ -27,14 +27,13 @@ import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
 // import AccountCircle from '@mui/icons-material/AccountCircle';
 import MonetizationOnSharpIcon from '@mui/icons-material/MonetizationOnSharp';
 
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
-import { useEffect } from 'react';
 
 export const CreateStock = () => {
   const user = {
@@ -53,6 +52,8 @@ export const CreateStock = () => {
     withCredentials: true,
   };
 
+  const [categoryData, setCategoryData] = useState([]);
+
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMessage, setSnackMessage] = useState(
     'Stock created successfully!'
@@ -70,9 +71,25 @@ export const CreateStock = () => {
     setSnackOpen(false);
   };
 
-  // useEffect(() => {
-  //   const
-  // },[])
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:5000/api/admin/getAllCats',
+          options
+        );
+
+        // console.log(response.data.data);
+        setCategoryData(response.data.data);
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error);
+        setSnackOpen(true);
+      }
+    };
+
+    fetchCats().then();
+  }, []);
 
   const categories = ['Health', 'Electronics', 'Gym', 'Stationary'];
 
@@ -80,8 +97,8 @@ export const CreateStock = () => {
 
   const stockDetails = Yup.object().shape({
     name: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required(),
-    amount: Yup.number().required(),
-    quantity: Yup.number().required(),
+    amount: Yup.number().positive().required(),
+    quantity: Yup.number().positive().required(),
     category: Yup.string().max(20, 'Too Long!').required(),
     sellerName: Yup.string()
       .min(2, 'Too Short!')
@@ -111,6 +128,7 @@ export const CreateStock = () => {
     validationSchema: stockDetails,
     onSubmit: async (values) => {
       try {
+        alert(JSON.stringify(values, null, 2));
         const { data } = await axios.post(
           'http://localhost:5000/api/admin/createNewStock',
           {
@@ -221,10 +239,10 @@ export const CreateStock = () => {
                           {...getFieldProps('category')}
                           label="Category"
                         >
-                          {categories.map((val) => {
+                          {categoryData.map((val) => {
                             return (
-                              <MenuItem key={val} value={val}>
-                                {val}
+                              <MenuItem key={val.name} value={val.name}>
+                                {val.name}
                               </MenuItem>
                             );
                           })}

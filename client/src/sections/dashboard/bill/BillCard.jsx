@@ -119,7 +119,7 @@ export default function BillCard({ post, index }) {
 
           <CoverImgStyle
             alt={name}
-            src={`/static/mock-images/covers/cover_${index + 1}.jpg`}
+            src={`/static/mock-images/covers/cover_${(index + 1) % 25}.jpg`}
           />
         </CardMediaStyle>
 

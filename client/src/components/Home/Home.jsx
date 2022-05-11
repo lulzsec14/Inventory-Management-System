@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 // components
 import Logo from '../Logo';
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,9 @@ const HeaderStyle = styled('header')(({ theme }) => ({
 export default function LogoOnlyLayout() {
   const navigate = useNavigate();
 
-  navigate('/login', { replace: true });
+  useEffect(() => {
+    navigate('/login', { replace: true });
+  }, []);
 
   return (
     <Fragment>
