@@ -88,7 +88,7 @@ export default function AccountPopover() {
 
     await sleep(500);
     // alert('Logging out!');
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   return (

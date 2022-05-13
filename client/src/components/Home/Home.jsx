@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 // components
 import Logo from '../Logo';
 import React, { Fragment, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 // ----------------------------------------------------------------------
 
@@ -24,9 +25,10 @@ const HeaderStyle = styled('header')(({ theme }) => ({
 export default function LogoOnlyLayout() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    navigate('/login', { replace: true });
-  }, []);
+  // let user = Cookies.get('user');
+  // useEffect(() => {
+  //   navigate('/login', { replace: true });
+  // }, []);
 
   return (
     <Fragment>

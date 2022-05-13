@@ -223,7 +223,7 @@ export const Stocks = () => {
       phoneNo: '',
     },
     validationSchema: SellSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       // values.name = currentStockName;
       // values.stockId = currentStockId;
       // alert(JSON.stringify(values, null, 2));
@@ -251,20 +251,9 @@ export const Stocks = () => {
         setSnackOpen(true);
         handleModalClose();
         setDataChange(!dataChange);
-        values.amount = '';
-        values.quantity = '';
-        values.paymentMode = '';
-        values.transactionId = '';
-        values.customerName = '';
-        values.address = '';
-        values.phoneNo = '';
 
-        // await sleep(3000);
-        // navigate('/login', { replace: true });
-        // console.log(data);
+        resetForm({ values: '' });
       } catch (err) {
-        // console.log('Here');
-        // console.log(err?.response?.data);
         setSnackColor('error');
         setSnackMessage(err?.response?.data?.error);
         setSnackOpen(true);
@@ -287,7 +276,7 @@ export const Stocks = () => {
 
         const responsedata = data.data;
         // console.log(responsedata);
-        const finalData = [];
+        let finalData = [];
 
         responsedata.forEach((element, index) => {
           const temp = {};

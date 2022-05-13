@@ -1,5 +1,5 @@
-import { Link as RouterLink } from 'react-router-dom';
-import { useState } from 'react';
+import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import {
   Card,
@@ -16,6 +16,8 @@ import Page from '../Page';
 import Logo from '../Logo';
 
 import { LoginForm } from '../../sections/auth/login';
+
+import Cookies from 'js-cookie';
 
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -63,6 +65,8 @@ export const Login = () => {
 
   const mdUp = useResponsive('up', 'md');
 
+  const navigate = useNavigate();
+
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMessage, setSnackMessage] = useState(
     'Adminn Logged In successfully!'
@@ -79,6 +83,12 @@ export const Login = () => {
     }
     setSnackOpen(false);
   };
+
+  let user = Cookies.get('user');
+
+  if (user) {
+    navigate('/dashboard/app', { replace: true });
+  }
 
   return (
     <Page title="Login">

@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Home from './components/Home/Home';
 import { Login } from './components/auth/Login';
 import { Register } from './components/auth/Register';
 import { DashboardLayout } from './components/Dashboard/DashboardLayout';
@@ -17,13 +16,14 @@ import { Protected } from './components/Protected/Protected';
 import { PurchasedStocks } from './pages/PurchasedStocks';
 import { CreateStock } from './pages/CreateStock';
 import { CreateCats } from './pages/CreateCats';
+import ProtectedLogin from './components/Protected/ProtectedLogin';
 
 function App() {
   return (
     <ThemeProvider>
       <ScrollToTop />
       <Routes>
-        <Route exact path="/" element={<Home />}>
+        <Route element={<ProtectedLogin />}>
           <Route exact path="login" element={<Login />} />
           <Route exact path="register" element={<Register />} />
         </Route>

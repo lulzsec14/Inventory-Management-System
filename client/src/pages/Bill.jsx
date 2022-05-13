@@ -4,19 +4,18 @@ import { useEffect, useState } from 'react';
 
 import {
   Grid,
-  Button,
   Container,
   Stack,
   Typography,
   Alert,
   Snackbar,
+  Box,
+  CircularProgress,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
 import { BillCard, BillSort, BillSearch } from '../sections/dashboard/bill';
 // mock
-import POSTS from '../_mock/blog';
-import BILLS from '../_mock/bills';
 import axios from 'axios';
 
 // ----------------------------------------------------------------------
@@ -40,6 +39,8 @@ export const Bill = () => {
   );
   const [snackColor, setSnackColor] = useState('success');
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSnackClick = () => {
     setSnackOpen(true);
   };
@@ -55,28 +56,25 @@ export const Bill = () => {
 
   useEffect(() => {
     const fetchBills = async () => {
+      setIsLoading(true);
+
       try {
         const { data } = await axios.get(
           'http://localhost:5000/api/admin/getPaymentsRecieved',
           options
         );
         const { mainData } = data.data;
-        // setData(mainData);
+
         setBillData(mainData);
-        // console.log(mainData);
-
-        // console.log('Here');
-
-        // console.log(billData);
       } catch (err) {
         setSnackColor('error');
         setSnackMessage('Some error occured!');
         setSnackOpen(true);
       }
+      setIsLoading(false);
     };
 
     fetchBills().then();
-    // console.log(billData);
   }, []);
 
   return (
@@ -89,7 +87,7 @@ export const Bill = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Profit Bills
+            Reciepts
           </Typography>
         </Stack>
 
@@ -103,22 +101,21 @@ export const Bill = () => {
           <BillSort options={SORT_OPTIONS} />
         </Stack>
 
-        {/* <ScrollBar> */}
-        <Grid container spacing={3}>
-          {/* {POSTS.map((post, index) => (
-            <BillCard key={post.id} post={post} index={index} />
-          ))} */}
-          {billData.map((post, index) => (
-            <BillCard key={post._id} post={post} index={index} />
-          ))}
-        </Grid>
-        {/* </ScrollBar> */}
+        {isLoading ? (
+          <CircularProgress size={'10rem'} />
+        ) : (
+          <Grid container spacing={3}>
+            {billData.map((post, index) => (
+              <BillCard key={post._id} post={post} index={index} />
+            ))}
+          </Grid>
+        )}
+
         <Snackbar
           open={snackOpen}
           autoHideDuration={6000}
           onClose={handleSnackClose}
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          // key={'top'+'right'}
         >
           <Alert
             onClose={handleSnackClose}

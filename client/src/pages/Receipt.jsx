@@ -13,7 +13,6 @@ import {
 import Page from '../components/Page';
 import { BillCard, BillSort, BillSearch } from '../sections/dashboard/bill';
 // mock
-import POSTS from '../_mock/blog';
 import axios from 'axios';
 
 // ----------------------------------------------------------------------
@@ -89,7 +88,7 @@ export const Receipt = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Purchased Bills
+            Bills
           </Typography>
         </Stack>
 
