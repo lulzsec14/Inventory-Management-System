@@ -211,7 +211,7 @@ export const CreateCats = () => {
           finalData.push(temp);
         });
 
-        console.log(responseData);
+        // console.log(responseData);
         setCategoryData(finalData);
       } catch (err) {
         setSnackColor('error');
@@ -266,38 +266,48 @@ export const CreateCats = () => {
 
   // Editing Category
 
+  const categoryValidate = Yup.object().shape({
+    catName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required(),
+  });
+
   const CatFormik = useFormik({
     initialValues: {
       id: '',
       catName: '',
     },
-    validationSchema: stockDetails,
+    validationSchema: categoryValidate,
     onSubmit: async (values) => {
-      alert(JSON.stringify(values, null, 2));
-      console.log('Hi');
-
-      // try {
       // alert(JSON.stringify(values, null, 2));
-      // const { data } = await axios.post(
-      //   'http://localhost:5000/api/admin/createCategory',
-      //   {
-      //     data: {
-      //       category: values.name,
-      //     },
-      //   },
-      //   options
-      // );
+      // console.log('Hi');
 
-      // setSnackColor('success');
-      // setSnackMessage(data.message);
-      // setSnackOpen(true);
-      // await sleep(3000);
-      // navigate('/dashboard/stocks', { replace: true });
-      // } catch (err) {
-      //   setSnackColor('error');
-      //   setSnackMessage(err?.response?.data?.error);
-      //   setSnackOpen(true);
-      // }
+      try {
+        // alert(JSON.stringify(values, null, 2));
+        console.log('Here');
+        const { data } = await axios.put(
+          'http://localhost:5000/api/admin/updateCategory',
+          {
+            data: {
+              id: values.id,
+              dataToUpdate: {
+                name: values.catName,
+              },
+            },
+          },
+          options
+        );
+
+        setSnackColor('success');
+        setSnackMessage(data.message);
+        setSnackOpen(true);
+        handleModalClose();
+
+        setDataChanged((prev) => !prev);
+        // navigate('/dashboard/stocks', { replace: true });
+      } catch (err) {
+        setSnackColor('error');
+        setSnackMessage(err?.response?.data?.error || 'Some error occured!');
+        setSnackOpen(true);
+      }
 
       // alert(JSON.stringify(values, null, 2));
     },
@@ -428,7 +438,7 @@ export const CreateCats = () => {
 
         {/* Additional  */}
 
-        <Card style={{ marginTop: '12px' }}>
+        <Card style={{ marginTop: '13px' }}>
           <TableContainer>
             <Table>
               <StockListHead
@@ -528,14 +538,10 @@ export const CreateCats = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
-
-        {/* ------------------ */}
       </Container>
 
       <RootStyle>
         <Modal
-          // aria-labelledby="transition-modal-title"
-          // aria-describedby="transition-modal-description"
           open={modalOpen}
           onClose={handleModalClose}
           closeAfterTransition
@@ -558,7 +564,7 @@ export const CreateCats = () => {
                   <Form
                     autoComplete="off"
                     noValidate
-                    onSubmit={CatFormik.handleSubmit}
+                    onSubmit={CatHandleSubmit}
                   >
                     <Stack spacing={3}>
                       <Stack
@@ -576,7 +582,7 @@ export const CreateCats = () => {
 
                         <TextField
                           fullWidth
-                          label="New category name"
+                          label="Update category name"
                           {...CatGetFieldProps('catName')}
                           error={Boolean(
                             CatTouched.catName && CatErrors.catName

@@ -987,6 +987,28 @@ const getAllCats = async (req, res, next) => {
   }
 };
 
+const updateCategory = async (req, res) => {
+  const { id, dataToUpdate } = req.body.data;
+
+  try {
+    const updateCat = await Category.findByIdAndUpdate(
+      id,
+      {
+        $set: dataToUpdate,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Category update successfully!',
+    });
+  } catch (err) {
+    log.info(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -1011,4 +1033,5 @@ module.exports = {
   updatePassword,
   getAdminDetails,
   getAllCats,
+  updateCategory,
 };

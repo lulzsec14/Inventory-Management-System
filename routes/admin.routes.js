@@ -23,6 +23,7 @@ const {
   updatePassword,
   getAdminDetails,
   getAllCats,
+  updateCategory,
 } = require('../controllers/Admin/adminController');
 const { checkAdmin } = require('../middlewares/adminAuth');
 const adminRouter = express.Router();
@@ -38,6 +39,7 @@ adminRouter.route('/getEmailVerification').get(checkAdmin, verifyEmail);
 adminRouter.route('/updateAdminPassword').put(checkAdmin, updatePassword);
 
 adminRouter.route('/getAllCats').get(checkAdmin, getAllCats);
+adminRouter.route('/updateCategory').put(checkAdmin, updateCategory);
 
 adminRouter.route('/getAdminDetails/:email').get(checkAdmin, getAdminDetails);
 

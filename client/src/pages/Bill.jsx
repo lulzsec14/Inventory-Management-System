@@ -101,15 +101,15 @@ export const Bill = () => {
           <BillSort options={SORT_OPTIONS} />
         </Stack>
 
-        {isLoading ? (
+        {/* {isLoading ? (
           <CircularProgress size={'10rem'} />
-        ) : (
-          <Grid container spacing={3}>
-            {billData.map((post, index) => (
-              <BillCard key={post._id} post={post} index={index} />
-            ))}
-          </Grid>
-        )}
+        ) : ( */}
+        <Grid container spacing={3}>
+          {billData.map((post, index) => (
+            <BillCard key={post._id} post={post} index={index} />
+          ))}
+        </Grid>
+        {/* )} */}
 
         <Snackbar
           open={snackOpen}

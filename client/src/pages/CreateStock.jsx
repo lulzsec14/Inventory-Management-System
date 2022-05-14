@@ -105,7 +105,11 @@ export const CreateStock = () => {
       .max(50, 'Too Long!')
       .required(),
     address: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required(),
-    phoneNo: Yup.string().min(8, 'Too Short!').max(12, 'Too Long!').required(),
+    phoneNo: Yup.string()
+      .min(8, 'Too Short!')
+      .max(12, 'Too Long!')
+      .matches(/^[0-9]+$/, 'Must be only digits')
+      .required(),
     mode: Yup.string().min(2, 'Too Short!').max(12, 'Too Long!').required(),
     transactionId: Yup.string()
       .min(8, 'Too Short!')

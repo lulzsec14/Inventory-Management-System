@@ -189,8 +189,8 @@ export const Stocks = () => {
   const SellSchema = Yup.object().shape({
     stockId: Yup.string(),
     name: Yup.string(),
-    amount: Yup.number().required('Amount is required'),
-    quantity: Yup.number().required('Quantity is required'),
+    amount: Yup.number().positive().required('Amount is required'),
+    quantity: Yup.number().positive().required('Quantity is required'),
     paymentMode: Yup.string()
       .min(3, 'Too short!')
       .max(10, 'Too long!')
@@ -207,6 +207,7 @@ export const Stocks = () => {
     phoneNo: Yup.string()
       .min(8, 'Too Short!')
       .max(12, 'Too Long!')
+      .matches(/^[0-9]+$/, 'Must be only digits')
       .required('Phone No required'),
   });
 
@@ -532,13 +533,6 @@ export const Stocks = () => {
           }}
         >
           <Fade in={modalOpen}>
-            {/* <>
-            <ModalForm
-              setSnackOpen={setSnackOpen}
-              setSnackMessage={setSnackMessage}
-              setSnackColor={setSnackColor}
-            />
-          </> */}
             <Box sx={modalStyle}>
               <Typography
                 id="transition-modal-title"
@@ -548,8 +542,6 @@ export const Stocks = () => {
                 Sell Stock
               </Typography>
               <Container sx={{ marginTop: '13px' }}>
-                {/* <SectionStyle> */}
-                {/* <Card> */}
                 <FormikProvider value={formik}>
                   <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
                     <Stack spacing={3}>
@@ -558,7 +550,6 @@ export const Stocks = () => {
                         spacing={2}
                       >
                         <TextField
-                          // fullWidth
                           label="Name"
                           disabled
                           {...getFieldProps('name')}
