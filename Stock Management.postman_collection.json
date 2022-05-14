@@ -14,11 +14,17 @@
 						"key": "Content-Type",
 						"value": "application/json",
 						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "",
+						"type": "text",
+						"disabled": true
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"data\": {\n        \"name\": \"Sourav\",\n        \"email\": \"sourav121420@gmail.com\",\n        \"password\": \"Password@2468\",\n        \"phoneNo\": \"8968613112\"\n    }\n}"
+					"raw": "{\n    \"data\": {\n        \"name\": \"Sourav\",\n        \"email\": \"lulzsec14@protonmail.com\",\n        \"password\": \"Password@2468\",\n        \"phoneNo\": \"8968613112\"\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/api/admin/registerAdmin",
@@ -49,7 +55,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"data\": {\n        \"email\": \"sourav121420@gmail.com\",\n        \"password\": \"Password@2468\"\n    }\n}"
+					"raw": "{\n    \"data\": {\n        \"email\": \"lulzsec14@protonmail.com\",\n        \"password\": \"Password@2468\"\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/api/admin/loginAdmin",
@@ -108,7 +114,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"data\": {\n        \"name\": \"AphaX\",\n        \"category\": \"Electronics\",\n        \"seller\": {\n            \"name\": \"XYZ\",\n            \"address\": \"House no 26 Anandnagar Kharar Mohali\",\n            \"phoneNo\": \"8968613050\"\n        },\n        \"amount\": 12563,\n        \"quantity\": 9,\n        \"paymentMode\": \"Cash\",\n        \"transactionId\": \"d11879fb492ff2390ea90d86b9aec419e6fc9bca\"\n    }\n}"
+					"raw": "{\n    \"data\": {\n        \"name\": \"GNC\",\n        \"category\": \"Gym\",\n        \"seller\": {\n            \"name\": \"XYZ\",\n            \"address\": \"House no 26 Anandnagar Kharar Mohali\",\n            \"phoneNo\": \"8968613050\"\n        },\n        \"amount\": 1500,\n        \"quantity\": 1,\n        \"paymentMode\": \"Cheque\",\n        \"transactionId\": \"d118s9fb492ff2390ea90d86b9aec419e6fc9bcq\"\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/api/admin/createNewStock",
@@ -139,7 +145,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"data\": {\n        \"category\": \"Stationary\"\n    }\n}"
+					"raw": "{\n    \"data\": {\n        \"category\": \"Automobile\"\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/api/admin/createCategory",
@@ -191,7 +197,7 @@
 		{
 			"name": "Sell Stock",
 			"request": {
-				"method": "DELETE",
+				"method": "PUT",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -201,7 +207,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"data\": {\n        \"stockId\": \"2334e7cf-aa52-433a-ba34-cd3417164abb\",\n        \"amount\": 50000,\n        \"quantity\": 4,\n        \"paymentMode\": \"Cheque\",\n        \"transactionId\": \"d11879fb492ff2390ea90d86b9aec419e6fc9bcz\",\n        \"customer\": {\n            \"name\": \"Mananjay\",\n            \"address\": \"HR31 Jind aale\",\n            \"phoneNo\": \"8968613001\"\n        }\n    }\n}"
+					"raw": "{\n    \"data\": {\n        \"stockId\": \"2336c9a6-983b-4404-bc96-610d116b3fa8\",\n        \"amount\": 200000,\n        \"quantity\": 1,\n        \"paymentMode\": \"NEFT\",\n        \"transactionId\": \"a11879fb492ff2390ea90d86b9aec119e6fc9bcs\",\n        \"customer\": {\n            \"name\": \"Gautam\",\n            \"address\": \"Mohali Phase 9\",\n            \"phoneNo\": \"8968613001\"\n        }\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/api/admin/sellStock",
@@ -220,7 +226,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Current Stocks",
+			"name": "Get Current Stocks By Category",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -231,7 +237,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:5000/api/admin/getCurrentStocks",
+					"raw": "http://localhost:5000/api/admin/getStockByCategory",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -240,14 +246,14 @@
 					"path": [
 						"api",
 						"admin",
-						"getCurrentStocks"
+						"getStockByCategory"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Get Purchased Stocks",
+			"name": "Get Purchased Stocks By Category",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -274,7 +280,7 @@
 			"response": []
 		},
 		{
-			"name": "GetSoldStocks",
+			"name": "GetSoldStocks By Category",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -366,7 +372,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:5000/api/admin/getEmailVerification?email=sourav121420@gmail.com",
+					"raw": "http://localhost:5000/api/admin/getEmailVerification?email=lulzsec14@protonmail.com",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -380,7 +386,7 @@
 					"query": [
 						{
 							"key": "email",
-							"value": "sourav121420@gmail.com"
+							"value": "lulzsec14@protonmail.com"
 						}
 					]
 				}
@@ -496,7 +502,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"data\":{\n        \"email\": \"sourav121420@gmail.com\",\n        \"dataToUpdate\": {\n            \"name\": \"Somaksh\"\n        }\n    }\n}"
+					"raw": "{\n    \"data\":{\n        \"email\": \"lulzsec14@protonmail.com\",\n        \"dataToUpdate\": {\n            \"name\": \"Somaksh\",\n            \"phoneNo\": \"8968613117\"\n        }\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/api/admin/updateAdminDetails",
@@ -509,6 +515,205 @@
 						"api",
 						"admin",
 						"updateAdminDetails"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Example",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/admin/updateAdminDetails/:courseId/:constructorId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"admin",
+						"updateAdminDetails",
+						":courseId",
+						":constructorId"
+					],
+					"variable": [
+						{
+							"key": "courseId",
+							"value": "vsdvasdv"
+						},
+						{
+							"key": "constructorId",
+							"value": "fdsfasdfasd"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Current Stocks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/admin/getAllStocks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"admin",
+						"getAllStocks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Purchased Stocks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/admin/getAllPurchasedStocks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"admin",
+						"getAllPurchasedStocks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Sold Stocks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/admin/getAllSoldStocks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"admin",
+						"getAllSoldStocks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Admi Password",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"email\": \"lulzsec14@protonmail.com\",\r\n        \"oldPassword\": \"Password@2468\",\r\n        \"newPassword\": \"Sourav@2468\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/admin/updateAdminPassword",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"admin",
+						"updateAdminPassword"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Admin Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/admin/getAdminDetails/:email",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"admin",
+						"getAdminDetails",
+						":email"
+					],
+					"variable": [
+						{
+							"key": "email",
+							"value": "lulzsec14@protonmail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Cats",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/admin/getAllCats",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"admin",
+						"getAllCats"
 					]
 				}
 			},
