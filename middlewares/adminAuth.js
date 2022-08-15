@@ -5,7 +5,10 @@ const checkAdmin = async (req, res, next) => {
   try {
     const token = req.cookies.isAuth;
     // matchToken = false;
+
+    console.log(req.cookies);
     if (!token) {
+      console.log('Here');
       res.status(401).json({
         success: false,
         error: 'Not authorized to perform this operation!',

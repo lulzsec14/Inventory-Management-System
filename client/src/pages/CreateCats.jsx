@@ -282,7 +282,7 @@ export const CreateCats = () => {
 
       try {
         // alert(JSON.stringify(values, null, 2));
-        console.log('Here');
+        // console.log('Here');
         const { data } = await axios.put(
           'http://localhost:5000/api/admin/updateCategory',
           {

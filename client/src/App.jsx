@@ -10,7 +10,7 @@ import { Receipt } from './pages/Receipt';
 import { SoldStocks } from './pages/SoldStocks';
 import { NotFound } from './pages/NotFound';
 import ScrollToTop from './components/ScrollToTop';
-
+import Home from './components/Home/Home';
 import ThemeProvider from './theme';
 import { Protected } from './components/Protected/Protected';
 import { PurchasedStocks } from './pages/PurchasedStocks';
@@ -23,6 +23,7 @@ function App() {
     <ThemeProvider>
       <ScrollToTop />
       <Routes>
+        <Route exact path="/" element={<Home />} />
         <Route element={<ProtectedLogin />}>
           <Route exact path="login" element={<Login />} />
           <Route exact path="register" element={<Register />} />

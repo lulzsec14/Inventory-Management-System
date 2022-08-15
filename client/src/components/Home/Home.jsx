@@ -25,10 +25,10 @@ const HeaderStyle = styled('header')(({ theme }) => ({
 export default function LogoOnlyLayout() {
   const navigate = useNavigate();
 
-  // let user = Cookies.get('user');
-  // useEffect(() => {
-  //   navigate('/login', { replace: true });
-  // }, []);
+  let user = Cookies.get('user');
+  useEffect(() => {
+    navigate('/login', { replace: true });
+  }, []);
 
   return (
     <Fragment>

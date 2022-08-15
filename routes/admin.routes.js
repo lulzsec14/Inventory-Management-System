@@ -35,7 +35,7 @@ adminRouter.route('/verify-email/:emailToken').get(verifyAdmin);
 adminRouter.route('/forgotPassword').post(checkAdmin, forgotPassword);
 adminRouter.route('/passwordReset/:resetToken').put(checkAdmin, resetPassword);
 adminRouter.route('/updateAdminDetails').put(checkAdmin, updateAdminDetails);
-adminRouter.route('/getEmailVerification').get(checkAdmin, verifyEmail);
+adminRouter.route('/getEmailVerification').get(verifyEmail);
 adminRouter.route('/updateAdminPassword').put(checkAdmin, updatePassword);
 
 adminRouter.route('/getAllCats').get(checkAdmin, getAllCats);

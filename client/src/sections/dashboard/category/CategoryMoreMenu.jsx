@@ -52,12 +52,12 @@ export default function CategoryMoreMenu({
             CatFormik.values.id = refId;
             // CatFormik.values.catName = '';
 
-            console.log(CatFormik.values);
+            // console.log(CatFormik.values);
 
             handleModalOpen();
             setIsOpen(false);
-            console.log('Edited');
-            console.log(refId);
+            // console.log('Edited');
+            // console.log(refId);
           }}
           sx={{ color: 'text.secondary' }}
         >

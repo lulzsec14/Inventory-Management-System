@@ -182,6 +182,43 @@ export const Profile = () => {
     setIsEdit(true);
   };
 
+  // For email verification
+
+  const [verifyButtonLoading, setVerifyButtonLoading] = useState(false);
+
+  const verifyEmail = async () => {
+    try {
+      setVerifyButtonLoading(true);
+      // console.log('Here');
+      const USER_DETAILS = JSON.parse(Cookies.get('user'));
+
+      const response = await axios.get(
+        `http://localhost:5000/api/admin/getEmailVerification?email=${USER_DETAILS.email}`,
+        options
+      );
+
+      setVerifyButtonLoading(false);
+      setSnackColor('success');
+      setSnackMessage('Verification email sent successfully!');
+      setSnackOpen(true);
+
+      // console.log('Reached Here');
+      // console.log(response);
+      setDetailsChanged((prev) => !prev);
+    } catch (err) {
+      setSnackColor('error');
+      setSnackMessage(err?.response?.data?.error);
+      setSnackOpen(true);
+      setVerifyButtonLoading(false);
+    }
+  };
+
+  const handleVerify = () => {
+    verifyEmail().then();
+  };
+
+  // --------------------------------------------
+
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
 
   const passwordErrors = passwordForm.errors;
@@ -216,7 +253,7 @@ export const Profile = () => {
         Cookies.set('user', JSON.stringify(data.data), { expires: 1 });
       } catch (err) {
         setSnackColor('error');
-        setSnackMessage('Couldnt fetch user details');
+        setSnackMessage("Couldn't fetch user details");
         setSnackOpen(true);
       }
     };
@@ -301,6 +338,28 @@ export const Profile = () => {
                   <Typography color="textSecondary" variant="body2">
                     {userDetails.phoneNo}
                   </Typography>
+
+                  {isVerified ? (
+                    <LoadingButton
+                      fullWidth
+                      size="large"
+                      variant="contained"
+                      loading={verifyButtonLoading}
+                      disabled
+                    >
+                      Verify Email
+                    </LoadingButton>
+                  ) : (
+                    <LoadingButton
+                      fullWidth
+                      size="large"
+                      variant="contained"
+                      loading={verifyButtonLoading}
+                      onClick={handleVerify}
+                    >
+                      Verify Email
+                    </LoadingButton>
+                  )}
                 </Box>
               </CardContent>
               <Divider />
